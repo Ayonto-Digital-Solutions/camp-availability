@@ -1,242 +1,427 @@
 /**
- * Booking Dashboard Styles
+ * Booking Dashboard Styles — Ayonto 2026
  *
  * @package AS_Camp_Availability_Integration
  * @since 1.3.42
+ * @updated 1.3.73
  */
 
-/* Dashboard Container */
-.as-cai-booking-dashboard {
-	padding: 20px;
+/* === VARIABLES (shared with admin) === */
+:root {
+	--bd-primary: #0583F2;
+	--bd-primary-dark: #0470d1;
+	--bd-primary-light: rgba(5, 131, 242, 0.06);
+	--bd-primary-ring: rgba(5, 131, 242, 0.12);
+	--bd-dark: #1A1A1A;
+	--bd-success: #22c55e;
+	--bd-success-light: rgba(34, 197, 94, 0.08);
+	--bd-warning: #f59e0b;
+	--bd-warning-light: rgba(245, 158, 11, 0.08);
+	--bd-danger: #ef4444;
+	--bd-danger-light: rgba(239, 68, 68, 0.08);
+	--bd-gray-50: #fafafa;
+	--bd-gray-100: #f4f4f5;
+	--bd-gray-200: #e4e4e7;
+	--bd-gray-300: #d4d4d8;
+	--bd-gray-400: #a1a1aa;
+	--bd-gray-500: #71717a;
+	--bd-gray-600: #52525b;
+	--bd-gray-700: #3f3f46;
+	--bd-gray-800: #27272a;
+	--bd-gray-900: #18181b;
+	--bd-radius: 10px;
+	--bd-radius-sm: 6px;
+	--bd-radius-lg: 14px;
+	--bd-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+	--bd-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+	--bd-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+	--bd-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+	--bd-transition: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* === DASHBOARD CONTAINER === */
+.as-cai-booking-dashboard {
+	padding: 20px 20px 20px 0;
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.as-cai-booking-dashboard h1 {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--bd-gray-900);
+	letter-spacing: -0.02em;
+	margin-bottom: 16px;
+}
+
+/* === INFO BAR === */
 .as-cai-dashboard-info {
-	background: #f0f6fc;
-	border-left: 4px solid #0073aa;
-	padding: 15px;
-	margin: 20px 0;
+	background: var(--bd-primary-light);
+	border: 1px solid var(--bd-primary-ring);
+	border-left: 3px solid var(--bd-primary);
+	padding: 12px 16px;
+	margin-bottom: 16px;
+	border-radius: var(--bd-radius-sm);
 }
 
 .as-cai-dashboard-info p {
 	margin: 0;
-	color: #333;
+	color: var(--bd-gray-700);
+	font-size: 13px;
+	line-height: 1.5;
 }
 
-/* Filters */
+/* === FILTERS === */
 .as-cai-filters {
-	background: #fff;
-	border: 1px solid #ddd;
-	padding: 20px;
-	margin: 20px 0;
-	border-radius: 4px;
+	background: white;
+	border: 1px solid var(--bd-gray-200);
+	padding: 16px 20px;
+	margin-bottom: 16px;
+	border-radius: var(--bd-radius);
+	box-shadow: var(--bd-shadow-sm);
 }
 
 .as-cai-filter-row {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 15px;
+	gap: 12px;
 	align-items: flex-end;
 }
 
 .as-cai-filter-item {
 	flex: 1;
-	min-width: 200px;
+	min-width: 160px;
 }
 
 .as-cai-filter-item label {
 	display: block;
-	margin-bottom: 5px;
+	margin-bottom: 4px;
 	font-weight: 600;
-	color: #333;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--bd-gray-500);
 }
 
 .as-cai-filter-item select,
 .as-cai-filter-item input[type="date"] {
 	width: 100%;
-	padding: 8px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
+	padding: 7px 10px;
+	border: 1px solid var(--bd-gray-300);
+	border-radius: var(--bd-radius-sm);
+	font-size: 13px;
+	color: var(--bd-gray-900);
+	background: white;
+	font-family: inherit;
+	transition: all var(--bd-transition);
 }
 
-/* Statistics */
+.as-cai-filter-item select:focus,
+.as-cai-filter-item input[type="date"]:focus {
+	outline: none;
+	border-color: var(--bd-primary);
+	box-shadow: 0 0 0 3px var(--bd-primary-ring);
+}
+
+.as-cai-filter-item .button {
+	font-family: inherit;
+	font-size: 13px;
+	padding: 7px 16px;
+	border-radius: var(--bd-radius-sm);
+	transition: all var(--bd-transition);
+	cursor: pointer;
+	border: 1px solid var(--bd-gray-300);
+}
+
+.as-cai-filter-item .button-primary {
+	background: var(--bd-primary) !important;
+	border-color: var(--bd-primary) !important;
+	color: white !important;
+}
+
+.as-cai-filter-item .button-primary:hover {
+	background: var(--bd-primary-dark) !important;
+	transform: translateY(-1px);
+	box-shadow: var(--bd-shadow);
+}
+
+.as-cai-filter-item .button:not(.button-primary) {
+	background: white;
+	color: var(--bd-gray-700);
+}
+
+.as-cai-filter-item .button:not(.button-primary):hover {
+	background: var(--bd-gray-50);
+	border-color: var(--bd-gray-400);
+}
+
+/* === STATISTICS === */
 .as-cai-stats {
-	margin: 20px 0;
+	margin-bottom: 16px;
 }
 
 .as-cai-stats-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 15px;
-	margin: 20px 0;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: 10px;
 }
 
 .as-cai-stat-card {
-	background: #fff;
-	border: 1px solid #ddd;
-	border-radius: 8px;
-	padding: 20px;
+	background: white;
+	border: 1px solid var(--bd-gray-200);
+	border-radius: var(--bd-radius);
+	padding: 14px 16px;
 	text-align: center;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	box-shadow: var(--bd-shadow-sm);
+	position: relative;
+	overflow: hidden;
+	transition: all var(--bd-transition);
+}
+
+.as-cai-stat-card:hover {
+	box-shadow: var(--bd-shadow);
+	border-color: var(--bd-gray-300);
+	transform: translateY(-1px);
+}
+
+.as-cai-stat-card::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: var(--bd-primary);
+}
+
+.as-cai-stat-card.as-cai-stat-status::before {
+	background: var(--bd-gray-400);
 }
 
 .as-cai-stat-value {
-	font-size: 32px;
-	font-weight: bold;
-	color: #2271b1;
-	margin-bottom: 5px;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--bd-gray-900);
+	line-height: 1;
+	margin-bottom: 4px;
+	letter-spacing: -0.02em;
 }
 
 .as-cai-stat-label {
-	font-size: 14px;
-	color: #666;
+	font-size: 0.6875rem;
+	color: var(--bd-gray-500);
+	font-weight: 500;
 	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	letter-spacing: 0.04em;
 }
 
-/* Category Sections */
+/* === CATEGORY SECTIONS === */
 .as-cai-category-section {
-	margin: 30px 0;
-	background: #fff;
-	border: 1px solid #ddd;
-	border-radius: 8px;
+	margin-bottom: 16px;
+	background: white;
+	border: 1px solid var(--bd-gray-200);
+	border-radius: var(--bd-radius-lg);
 	overflow: hidden;
+	box-shadow: var(--bd-shadow-sm);
+	transition: border-color var(--bd-transition);
+}
+
+.as-cai-category-section:hover {
+	border-color: var(--bd-gray-300);
 }
 
 .as-cai-category-title {
-	background: #f7f7f7;
-	border-bottom: 2px solid #2271b1;
-	padding: 15px 20px;
+	background: var(--bd-gray-50);
+	border-bottom: 1px solid var(--bd-gray-200);
+	padding: 12px 20px;
 	margin: 0;
-	font-size: 18px;
-	color: #333;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	color: var(--bd-gray-900);
+	letter-spacing: -0.01em;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .as-cai-booking-count {
-	font-size: 14px;
-	color: #666;
-	font-weight: normal;
-	margin-left: 10px;
+	font-size: 12px;
+	color: var(--bd-gray-400);
+	font-weight: 500;
 }
 
-/* Table Styles */
+/* === TABLE STYLES === */
 .as-cai-bookings-table {
 	margin: 0;
 	border: none;
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	font-size: 13px;
 }
 
 .as-cai-bookings-table th {
-	background: #f9f9f9;
+	background: var(--bd-gray-50);
 	font-weight: 600;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 	text-align: left;
-	padding: 12px;
+	padding: 9px 14px;
+	color: var(--bd-gray-500);
+	border-bottom: 1px solid var(--bd-gray-200);
+	white-space: nowrap;
 }
 
 .as-cai-bookings-table td {
-	padding: 12px;
+	padding: 9px 14px;
 	vertical-align: middle;
+	color: var(--bd-gray-700);
+	border-bottom: 1px solid var(--bd-gray-100);
+}
+
+.as-cai-bookings-table tbody tr {
+	transition: background var(--bd-transition);
 }
 
 .as-cai-bookings-table tbody tr:hover {
-	background: #f5f5f5;
+	background: var(--bd-primary-light);
+}
+
+.as-cai-bookings-table tbody tr:last-child td {
+	border-bottom: none;
 }
 
 .as-cai-bookings-table a {
-	color: #2271b1;
+	color: var(--bd-primary);
 	text-decoration: none;
+	font-weight: 500;
+	transition: color var(--bd-transition);
 }
 
 .as-cai-bookings-table a:hover {
+	color: var(--bd-primary-dark);
 	text-decoration: underline;
 }
 
-/* Status Badges */
+/* === STATUS BADGES === */
 .as-cai-status {
-	display: inline-block;
-	padding: 4px 12px;
-	border-radius: 12px;
-	font-size: 12px;
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 8px;
+	border-radius: 5px;
+	font-size: 11px;
 	font-weight: 600;
-	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	text-transform: none;
 }
 
-.as-cai-status-pending {
-	background: #f0ad4e;
-	color: #fff;
+.as-cai-status-pending,
+.as-cai-status-on-hold {
+	background: var(--bd-warning-light);
+	color: #a16207;
 }
 
 .as-cai-status-processing {
-	background: #5bc0de;
-	color: #fff;
+	background: rgba(59, 130, 246, 0.08);
+	color: #1d4ed8;
 }
 
 .as-cai-status-completed {
-	background: #5cb85c;
-	color: #fff;
+	background: var(--bd-success-light);
+	color: #15803d;
 }
 
 .as-cai-status-cancelled,
 .as-cai-status-failed {
-	background: #d9534f;
-	color: #fff;
-}
-
-.as-cai-status-on-hold {
-	background: #f0ad4e;
-	color: #fff;
+	background: var(--bd-danger-light);
+	color: #b91c1c;
 }
 
 .as-cai-status-refunded {
-	background: #999;
-	color: #fff;
+	background: rgba(113, 113, 122, 0.08);
+	color: var(--bd-gray-600);
 }
 
-/* No Bookings Message */
-.as-cai-no-bookings {
-	background: #fff;
-	border: 1px solid #ddd;
-	border-radius: 8px;
-	padding: 40px;
-	text-align: center;
-	color: #666;
-}
-
-.as-cai-no-bookings p {
-	font-size: 16px;
-	margin: 0;
-}
-
-/* Sortable Columns */
+/* === SORTABLE COLUMNS === */
 .as-cai-sortable-col {
 	cursor: pointer;
 	user-select: none;
-	white-space: nowrap;
+	transition: background var(--bd-transition);
 }
 
 .as-cai-sortable-col:hover {
-	background: #eee;
+	background: var(--bd-gray-100);
 }
 
 .as-cai-sort-icon {
 	font-size: 10px;
-	color: #999;
+	color: var(--bd-gray-400);
 	margin-left: 2px;
 }
 
-/* Export Section */
-.as-cai-export {
-	margin: 30px 0;
-	text-align: right;
+/* === NO BOOKINGS === */
+.as-cai-no-bookings {
+	background: white;
+	border: 1px solid var(--bd-gray-200);
+	border-radius: var(--bd-radius-lg);
+	padding: 48px 24px;
+	text-align: center;
+	color: var(--bd-gray-500);
 }
 
-/* Print Styles — only show booking tables in landscape */
+.as-cai-no-bookings p {
+	font-size: 14px;
+	margin: 0;
+}
+
+/* === EXPORT SECTION === */
+.as-cai-export {
+	margin-top: 16px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.as-cai-export .button {
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 12.5px;
+	font-weight: 500;
+	padding: 7px 14px;
+	border-radius: var(--bd-radius-sm);
+	border: 1px solid var(--bd-gray-300);
+	background: white;
+	color: var(--bd-gray-700);
+	transition: all var(--bd-transition);
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.as-cai-export .button:hover {
+	background: var(--bd-gray-50);
+	border-color: var(--bd-gray-400);
+	color: var(--bd-gray-900);
+	transform: translateY(-1px);
+	box-shadow: var(--bd-shadow);
+}
+
+.as-cai-export .button .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+}
+
+/* === PRINT STYLES === */
 @media print {
-	/* Force landscape orientation for wide tables */
 	@page {
 		size: landscape;
 		margin: 10mm;
 	}
 
-	/* Hide EVERYTHING first, then show only what we need */
 	body * {
 		visibility: hidden;
 	}
@@ -251,7 +436,6 @@
 		width: 100%;
 	}
 
-	/* Hide dashboard UI elements that aren't tables */
 	.as-cai-filters,
 	.as-cai-export,
 	.as-cai-dashboard-info,
@@ -261,7 +445,6 @@
 		display: none !important;
 	}
 
-	/* Reset WP admin layout */
 	#wpcontent,
 	#wpbody,
 	#wpbody-content,
@@ -278,12 +461,10 @@
 		padding: 0 !important;
 	}
 
-	/* Dashboard container */
 	.as-cai-booking-dashboard {
 		padding: 0 !important;
 	}
 
-	/* Category sections */
 	.as-cai-category-section {
 		margin: 0 0 12px 0;
 		border: 1px solid #999;
@@ -301,7 +482,6 @@
 		border-bottom: 1px solid #999;
 	}
 
-	/* Table: remove fixed layout so columns auto-size to content */
 	.as-cai-bookings-table {
 		table-layout: auto !important;
 		width: 100% !important;
@@ -317,7 +497,6 @@
 		overflow: visible;
 	}
 
-	/* Allow E-Mail and Name to wrap if needed */
 	.as-cai-bookings-table td:nth-child(2),
 	.as-cai-bookings-table td:nth-child(3) {
 		white-space: normal;
@@ -333,17 +512,14 @@
 		font-weight: 700;
 	}
 
-	/* Repeat table header on every page */
 	.as-cai-bookings-table thead {
 		display: table-header-group;
 	}
 
-	/* Allow rows to break across pages */
 	.as-cai-bookings-table tr {
 		page-break-inside: avoid;
 	}
 
-	/* Status badges: compact for print */
 	.as-cai-status {
 		-webkit-print-color-adjust: exact;
 		print-color-adjust: exact;
@@ -353,25 +529,29 @@
 		border: 1px solid #999;
 	}
 
-	/* Links as plain text */
 	.as-cai-bookings-table a {
 		color: #000 !important;
 		text-decoration: none !important;
 	}
 }
 
-/* Responsive */
+/* === RESPONSIVE === */
 @media screen and (max-width: 782px) {
+	.as-cai-booking-dashboard {
+		padding: 10px 10px 10px 0;
+	}
+
 	.as-cai-filter-row {
 		flex-direction: column;
 	}
 
 	.as-cai-filter-item {
 		width: 100%;
+		min-width: 0;
 	}
 
 	.as-cai-stats-grid {
-		grid-template-columns: 1fr;
+		grid-template-columns: repeat(2, 1fr);
 	}
 
 	.as-cai-bookings-table {
@@ -380,6 +560,15 @@
 
 	.as-cai-bookings-table th,
 	.as-cai-bookings-table td {
-		padding: 8px;
+		padding: 7px 8px;
+	}
+
+	.as-cai-export {
+		flex-direction: column;
+	}
+
+	.as-cai-export .button {
+		width: 100%;
+		justify-content: center;
 	}
 }

@@ -7,6 +7,18 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [1.3.73] - 2026-03-15
+
+### Changed
+- **Buchungs-Dashboard auf Ayonto 2026 Design umgestellt**
+  - Inter Font, Ayonto-Blau Farbschema, moderne Schatten und Radii
+  - Stat-Cards mit oberer Akzentlinie und Hover-Effekt
+  - Tabellen mit feinen Headers, subtilen Hover-Highlights
+  - Status-Badges: Leichte Hintergründe statt kräftige Vollfarben
+  - Filter-Bereich: Moderne Inputs mit Focus-Rings
+  - Export-Buttons: Konsistentes Button-Design
+  - Responsive: 2-Spalten Stat-Grid auf Mobile
+
 ## [1.3.72] - 2026-03-15
 
 ### Changed

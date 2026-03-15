@@ -73,10 +73,18 @@ class AS_CAI_Booking_Dashboard {
 			return;
 		}
 
+		// Google Fonts: Inter.
+		wp_enqueue_style(
+			'as-cai-google-fonts',
+			'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+			array(),
+			null
+		);
+
 		wp_enqueue_style(
 			'as-cai-booking-dashboard',
 			AS_CAI_PLUGIN_URL . 'assets/css/booking-dashboard.css',
-			array(),
+			array( 'as-cai-google-fonts' ),
 			AS_CAI_VERSION
 		);
 	}
