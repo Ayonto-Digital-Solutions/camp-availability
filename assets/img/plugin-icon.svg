@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#764ba2"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="128" cy="128" r="128" fill="url(#bg)"/>
+  <!-- Tent body -->
+  <path d="M128 52 L68 188 L188 188 Z" fill="white" opacity="0.95"/>
+  <!-- Tent opening -->
+  <path d="M128 120 L112 188 L144 188 Z" fill="url(#bg)" opacity="0.6"/>
+  <!-- Tent pole line -->
+  <line x1="128" y1="48" x2="128" y2="188" stroke="white" stroke-width="2" opacity="0.3"/>
+  <!-- Flag on top -->
+  <path d="M128 48 L128 32 L148 40 L128 48" fill="#f59e0b"/>
+  <!-- Ground line -->
+  <line x1="52" y1="188" x2="204" y2="188" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <!-- Small trees left -->
+  <path d="M48 188 L56 168 L64 188" fill="white" opacity="0.3"/>
+  <!-- Small trees right -->
+  <path d="M192 188 L200 168 L208 188" fill="white" opacity="0.3"/>
+</svg>

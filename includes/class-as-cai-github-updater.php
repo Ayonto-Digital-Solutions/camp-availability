@@ -118,6 +118,9 @@ class AS_CAI_GitHub_Updater {
 
 		// Clear cache when plugin list is force-refreshed.
 		add_action( 'admin_init', array( $this, 'maybe_clear_cache' ) );
+
+		// Show plugin icon in the plugins list.
+		add_filter( 'plugin_row_meta', array( $this, 'inject_plugin_icon_style' ), 10, 2 );
 	}
 
 	/**
@@ -192,13 +195,17 @@ class AS_CAI_GitHub_Updater {
 			$download_url = $this->get_download_url( $release );
 
 			if ( $download_url ) {
+				$icon_url = defined( 'AS_CAI_PLUGIN_URL' ) ? AS_CAI_PLUGIN_URL . 'assets/img/plugin-icon.svg' : '';
 				$transient->response[ $this->basename ] = (object) array(
 					'slug'        => $this->slug,
 					'plugin'      => $this->basename,
 					'new_version' => $remote_version,
 					'url'         => 'https://github.com/' . $this->repo,
 					'package'     => $download_url,
-					'icons'       => array(),
+					'icons'       => array(
+						'svg'     => $icon_url,
+						'default' => $icon_url,
+					),
 					'banners'     => array(),
 					'tested'      => '',
 					'requires'    => '6.5',
@@ -283,6 +290,15 @@ class AS_CAI_GitHub_Updater {
 		);
 		$info->download_link = $this->get_download_url( $release );
 
+		// Plugin icon
+		$icon_url = defined( 'AS_CAI_PLUGIN_URL' ) ? AS_CAI_PLUGIN_URL . 'assets/img/plugin-icon.svg' : '';
+		if ( $icon_url ) {
+			$info->icons = array(
+				'svg'     => $icon_url,
+				'default' => $icon_url,
+			);
+		}
+
 		return $info;
 	}
 
@@ -311,6 +327,39 @@ class AS_CAI_GitHub_Updater {
 		activate_plugin( $this->basename );
 
 		return $result;
+	}
+
+	/**
+	 * Inject plugin icon CSS for the plugins list page.
+	 *
+	 * WordPress only shows icons for .org plugins by default.
+	 * This injects a small CSS rule to display our SVG icon.
+	 *
+	 * @param array  $plugin_meta Plugin meta links.
+	 * @param string $plugin_file Plugin file path.
+	 * @return array Unmodified plugin meta.
+	 * @since 1.3.61
+	 */
+	public function inject_plugin_icon_style( $plugin_meta, $plugin_file ) {
+		static $injected = false;
+
+		if ( $plugin_file !== $this->basename || $injected ) {
+			return $plugin_meta;
+		}
+
+		$injected = true;
+		$icon_url = defined( 'AS_CAI_PLUGIN_URL' ) ? AS_CAI_PLUGIN_URL . 'assets/img/plugin-icon.svg' : '';
+
+		if ( $icon_url ) {
+			echo '<style>
+				tr[data-slug="' . esc_attr( $this->slug ) . '"] .plugin-icon-wrap img,
+				tr[data-plugin="' . esc_attr( $this->basename ) . '"] .plugin-icon-wrap img {
+					content: url(' . esc_url( $icon_url ) . ');
+				}
+			</style>';
+		}
+
+		return $plugin_meta;
 	}
 
 	/**
