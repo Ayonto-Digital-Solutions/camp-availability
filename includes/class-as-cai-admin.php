@@ -158,20 +158,11 @@ class AS_CAI_Admin {
 			AS_CAI_VERSION
 		);
 
-		// Chart.js (CDN) - Load early.
-		wp_enqueue_script(
-			'as-cai-chartjs',
-			'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
-			array(),
-			'4.4.1',
-			true
-		);
-
 		// Custom admin JS - Load BEFORE Alpine.js to register asCaiAdminApp function.
 		wp_enqueue_script(
 			'as-cai-admin-js',
 			AS_CAI_PLUGIN_URL . 'assets/js/as-cai-admin.js',
-			array( 'jquery', 'as-cai-chartjs' ),
+			array( 'jquery' ),
 			AS_CAI_VERSION,
 			false // Load in header, not footer, so function is available
 		);
@@ -433,58 +424,9 @@ class AS_CAI_Admin {
 			</a>
 		</div>
 
-		<!-- Main Content Grid -->
-		<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px;">
-			<!-- Chart Card -->
-			<div class="as-cai-card as-cai-fade-in" style="animation-delay: 0.5s;">
-				<div class="as-cai-card-header">
-					<h2 class="as-cai-card-title">
-						<i class="fas fa-chart-line"></i>
-						<?php esc_html_e( 'Reservation Statistics (Last 7 Days)', 'as-camp-availability-integration' ); ?>
-					</h2>
-				</div>
-				<div class="as-cai-card-body">
-					<div class="as-cai-chart-container">
-						<canvas id="reservationsChart"></canvas>
-					</div>
-				</div>
-			</div>
-
-			<!-- Recent Activity Card -->
-			<div class="as-cai-card as-cai-fade-in" style="animation-delay: 0.6s;">
-				<div class="as-cai-card-header">
-					<h2 class="as-cai-card-title">
-						<i class="fas fa-history"></i>
-						<?php esc_html_e( 'Recent Activity', 'as-camp-availability-integration' ); ?>
-					</h2>
-				</div>
-				<div class="as-cai-card-body">
-					<div x-init="loadRecentActivity()">
-						<template x-if="!activities || activities.length === 0">
-							<div class="as-cai-empty-state">
-								<i class="fas fa-inbox"></i>
-								<p><?php esc_html_e( 'No recent activity', 'as-camp-availability-integration' ); ?></p>
-							</div>
-						</template>
-						<template x-if="activities && activities.length > 0">
-							<div style="max-height: 280px; overflow-y: auto;">
-								<template x-for="activity in activities" :key="activity.id">
-									<div style="padding: 12px; border-bottom: 1px solid var(--as-gray-200); display: flex; gap: 12px;">
-										<div style="flex-shrink: 0;">
-											<i class="fas fa-circle" style="font-size: 8px; color: var(--as-primary);"></i>
-										</div>
-										<div style="flex: 1;">
-											<p style="margin: 0; font-size: 14px; color: var(--as-gray-700);" x-text="activity.message"></p>
-											<p style="margin: 4px 0 0 0; font-size: 12px; color: var(--as-gray-500);" x-text="activity.time"></p>
-										</div>
-									</div>
-								</template>
-							</div>
-						</template>
-					</div>
-				</div>
-			</div>
-		</div>
+		<!-- Removed: Reservation Statistics chart and Recent Activity cards.
+		     These previously showed hardcoded placeholder data.
+		     Real-time stats are shown in the stat cards above. -->
 		<?php
 	}
 

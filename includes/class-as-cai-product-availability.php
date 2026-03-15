@@ -33,9 +33,12 @@ class AS_CAI_Product_Availability {
 		add_action( 'add_meta_boxes', array( $this, 'add_availability_meta_box' ) );
 		add_action( 'save_post', array( $this, 'save_availability_meta_box' ), 10, 2 );
 
-		// Frontend: Control purchasability with HIGHEST priority
-		// This runs BEFORE any other plugin (including Koalaapps Scheduler)
+		// Frontend: Control purchasability and stock status with HIGHEST priority.
+		// This runs BEFORE any other plugin (including Koalaapps Scheduler).
+		// Both filters are needed: is_purchasable blocks WooCommerce add-to-cart,
+		// is_in_stock prevents Stachethemes Seat Planner from rendering the button.
 		add_filter( 'woocommerce_is_purchasable', array( $this, 'control_purchasability' ), 5, 2 );
+		add_filter( 'woocommerce_product_is_in_stock', array( $this, 'control_stock_status' ), 5, 2 );
 		
 		// Admin: Add availability column to product list
 		add_filter( 'manage_product_posts_columns', array( $this, 'add_availability_column' ) );
@@ -263,6 +266,34 @@ class AS_CAI_Product_Availability {
 		// Return availability status
 		// If not available, this blocks the "Add to Cart" button
 		return $is_available ? $purchasable : false;
+	}
+
+	/**
+	 * Control product stock status based on availability settings.
+	 *
+	 * Stachethemes Seat Planner checks is_in_stock() to decide whether to
+	 * render the "Select Seat" button. By returning false here when the
+	 * product is not yet available, the button is never rendered in the
+	 * first place — a server-side block that cannot be bypassed via DevTools.
+	 *
+	 * @since 1.3.62
+	 * @param bool       $in_stock Whether the product is in stock.
+	 * @param WC_Product $product  Product object.
+	 * @return bool
+	 */
+	public function control_stock_status( $in_stock, $product ) {
+		$product_id = $product->get_id();
+		$enabled    = get_post_meta( $product_id, '_as_cai_availability_enabled', true );
+
+		if ( 'yes' !== $enabled ) {
+			return $in_stock;
+		}
+
+		if ( ! $this->is_product_available( $product_id ) ) {
+			return false;
+		}
+
+		return $in_stock;
 	}
 
 	/**

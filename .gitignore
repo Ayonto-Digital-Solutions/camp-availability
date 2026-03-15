@@ -39,11 +39,15 @@ debug.log
 /dist/
 /build/
 
-# Archives
+# Archives (except reference plugins)
 *.zip
 *.tar.gz
+!.reference/*.zip
 
 # Secrets
 *.pem
 *.key
 credentials.json
+
+# Reference plugins (extracted sources are local only)
+.reference/*/

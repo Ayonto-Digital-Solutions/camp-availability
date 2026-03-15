@@ -107,6 +107,12 @@ class AS_CAI_Status_Display {
 
 	/**
 	 * Conditionally render the status box on product pages.
+	 *
+	 * The status box is only rendered when the product is currently available
+	 * (i.e. the countdown has expired). This is a server-side check that
+	 * cannot be bypassed via browser DevTools.
+	 *
+	 * @since 1.3.62 Only render when product availability window is active.
 	 */
 	public function maybe_render_status_box() {
 		if ( ! is_product() ) {
@@ -127,6 +133,14 @@ class AS_CAI_Status_Display {
 			return;
 		}
 		$rendered = true;
+
+		// Server-side availability check: only render when the product is
+		// currently available (countdown expired). This cannot be manipulated
+		// by the user in the browser.
+		$availability = AS_CAI_Availability_Check::get_product_availability( $product->get_id() );
+		if ( ! $availability['is_available'] ) {
+			return;
+		}
 
 		$this->render_status_box( $product->get_id() );
 	}

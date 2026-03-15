@@ -191,14 +191,8 @@ class AS_CAI_Frontend {
 				true
 			);
 			
-			// v1.3.57 DEBUG: Add HTML comment to confirm script was enqueued
-			add_action( 'wp_footer', function() use ( $cache_buster ) {
-				echo "\n<!-- [AS-CAI v1.3.57] Countdown script enqueued with version: " . esc_html( $cache_buster ) . " -->\n";
-			}, 999 );
-			
-			// v1.3.57 DEBUG: Log successful enqueue
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( '[AS-CAI v1.3.57] ✅ Countdown script successfully enqueued on shop/category page' );
+				error_log( '[AS-CAI] Countdown script enqueued on shop/category page' );
 			}
 		}
 	}
@@ -416,28 +410,34 @@ class AS_CAI_Frontend {
 			}
 		}
 
-		// v1.3.11: ALWAYS output JavaScript that removes conflicting classes first
-		// Then add the correct class based on visibility state
+		// v1.3.62: Hide/show seat planner button wrapper, root, and status box.
+		// All selection elements are hidden until the countdown expires.
 		?>
 		<script type="text/javascript">
 		jQuery(document).ready(function($) {
-			// Remove both classes first to avoid conflicts
-			$('.stachesepl-single-add-to-cart-button-wrapper')
-				.removeClass('as-cai-button-hidden as-cai-button-visible');
-			
+			var $wrapper = $('.stachesepl-single-add-to-cart-button-wrapper');
+			var $root = $('.stachesepl-add-to-cart-button-root');
+			var $statusBox = $('.as-cai-status-box');
+
+			$wrapper.removeClass('as-cai-button-hidden as-cai-button-visible');
+			$root.removeClass('as-cai-button-hidden as-cai-button-visible');
+			$statusBox.removeClass('as-cai-button-hidden as-cai-button-visible');
+
 			<?php if ( $should_hide ) : ?>
-			// Add hidden class
-			$('.stachesepl-single-add-to-cart-button-wrapper').addClass('as-cai-button-hidden');
+			$wrapper.addClass('as-cai-button-hidden');
+			$root.addClass('as-cai-button-hidden');
+			$statusBox.addClass('as-cai-button-hidden');
 			<?php else : ?>
-			// Add visible class and explicitly show
-			$('.stachesepl-single-add-to-cart-button-wrapper')
-				.addClass('as-cai-button-visible')
-				.css('display', 'block');
+			$wrapper.addClass('as-cai-button-visible').css('display', 'block');
+			$root.addClass('as-cai-button-visible').css('display', '');
+			$statusBox.addClass('as-cai-button-visible').css('display', '');
 			<?php endif; ?>
 		});
 		</script>
 		<style>
-			.stachesepl-single-add-to-cart-button-wrapper.as-cai-button-hidden {
+			.stachesepl-single-add-to-cart-button-wrapper.as-cai-button-hidden,
+			.stachesepl-add-to-cart-button-root.as-cai-button-hidden,
+			.as-cai-status-box.as-cai-button-hidden {
 				display: none !important;
 			}
 			.stachesepl-single-add-to-cart-button-wrapper.as-cai-button-visible {

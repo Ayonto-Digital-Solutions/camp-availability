@@ -39,56 +39,38 @@
 		debug.log('asCaiData loaded:', asCaiData);
 
 		const $seatPlannerButton = $('.stachesepl-single-add-to-cart-button-wrapper');
+		const $seatPlannerRoot = $('.stachesepl-add-to-cart-button-root');
+		const $statusBox = $('.as-cai-status-box');
 		const $counterWrapper = $('.as-cai-availability-counter-wrapper');
 
-		// Enhanced debug for counter wrapper search.
 		debug.log('Counter wrapper search:', {
-			selector: '.as-cai-availability-counter-wrapper',
 			found: $counterWrapper.length,
-			exists: $counterWrapper.length > 0,
 			hasCounter: asCaiData.hasCounter,
 			isAvailable: asCaiData.isAvailable
 		});
 
-		if ($counterWrapper.length > 0) {
-			debug.log('Counter wrapper HTML:', $counterWrapper.prop('outerHTML').substring(0, 200) + '...');
-			debug.log('Counter wrapper data:', {
-				targetTimestamp: $counterWrapper.data('target-timestamp'),
-				textBefore: $counterWrapper.data('text-before'),
-				textAfter: $counterWrapper.data('text-after')
-			});
+		// While countdown is active: hide seat planner button, root, and status box.
+		// They only become visible once the countdown expires.
+		if (!asCaiData.isAvailable) {
+			debug.log('Product NOT available - hiding button, root & status box until countdown expires');
+			$seatPlannerButton.addClass('as-cai-button-hidden').hide();
+			$seatPlannerRoot.addClass('as-cai-button-hidden').hide();
+			$statusBox.addClass('as-cai-button-hidden').hide();
 		} else {
-			debug.error('Counter wrapper NOT FOUND in DOM!');
-			debug.log('Searching for partial matches...');
-			debug.log('Elements with "counter" in class:', $('[class*="counter"]').length);
-			debug.log('Elements with "as-cai" in class:', $('[class*="as-cai"]').length);
-		}
-
-		if ($seatPlannerButton.length === 0) {
-			debug.log('Seat Planner button not found in DOM (normal for non-auditorium products)');
-		} else {
-			debug.log('Seat Planner button found:', $seatPlannerButton);
-
-			// Initially hide or show button based on availability (only for auditorium products).
-			if (!asCaiData.isAvailable) {
-				debug.log('Product NOT available - hiding button');
-				$seatPlannerButton.addClass('as-cai-button-hidden').hide();
-			} else {
-				debug.log('Product IS available - showing button');
-				$seatPlannerButton.addClass('as-cai-button-visible').show();
-			}
+			debug.log('Product IS available - showing button, root & status box');
+			$seatPlannerButton.addClass('as-cai-button-visible').show();
+			$seatPlannerRoot.addClass('as-cai-button-visible').show();
+			$statusBox.addClass('as-cai-button-visible').show();
 		}
 
 		// If counter is active, initialize countdown.
 		if (asCaiData.hasCounter && $counterWrapper.length > 0) {
-			debug.log('✅ All conditions met - initializing countdown');
-			initCountdown($counterWrapper, $seatPlannerButton);
+			debug.log('Initializing countdown');
+			initCountdown($counterWrapper, $seatPlannerButton, $seatPlannerRoot, $statusBox);
 		} else {
-			debug.log('❌ Countdown NOT initialized. Conditions check:', {
+			debug.log('Countdown NOT initialized:', {
 				hasCounter: asCaiData.hasCounter,
-				isAvailable: asCaiData.isAvailable,
-				counterWrapperFound: $counterWrapper.length > 0,
-				allConditionsMet: asCaiData.hasCounter && $counterWrapper.length > 0
+				counterWrapperFound: $counterWrapper.length > 0
 			});
 		}
 	}
@@ -97,18 +79,20 @@
 	 * Initialize countdown timer.
 	 *
 	 * @param {jQuery} $wrapper - Counter wrapper element.
-	 * @param {jQuery} $button - Seat planner button element.
+	 * @param {jQuery} $button - Seat planner button wrapper element.
+	 * @param {jQuery} $buttonRoot - Seat planner add-to-cart root element.
+	 * @param {jQuery} $statusBox - Status display box element.
 	 */
-	function initCountdown($wrapper, $button) {
+	function initCountdown($wrapper, $button, $buttonRoot, $statusBox) {
 		const targetTimestamp = parseInt($wrapper.data('target-timestamp'), 10);
-		
+
 		if (!targetTimestamp || isNaN(targetTimestamp)) {
 			debug.error('Invalid target timestamp:', $wrapper.data('target-timestamp'));
 			return;
 		}
 
 		const targetDate = new Date(targetTimestamp * 1000);
-		
+
 		debug.log('Countdown initialized:', {
 			targetTimestamp: targetTimestamp,
 			targetDate: targetDate.toString(),
@@ -116,14 +100,12 @@
 		});
 
 		// Update countdown immediately.
-		updateCountdown($wrapper, targetDate, $button);
+		updateCountdown($wrapper, targetDate, $button, $buttonRoot, $statusBox);
 
 		// Update countdown every second.
 		countdownInterval = setInterval(function() {
-			updateCountdown($wrapper, targetDate, $button);
+			updateCountdown($wrapper, targetDate, $button, $buttonRoot, $statusBox);
 		}, 1000);
-
-		debug.log('Countdown interval started:', countdownInterval);
 	}
 
 	/**
@@ -131,16 +113,18 @@
 	 *
 	 * @param {jQuery} $wrapper - Counter wrapper element.
 	 * @param {Date} targetDate - Target date/time.
-	 * @param {jQuery} $button - Seat planner button element.
+	 * @param {jQuery} $button - Seat planner button wrapper element.
+	 * @param {jQuery} $buttonRoot - Seat planner add-to-cart root element.
+	 * @param {jQuery} $statusBox - Status display box element.
 	 */
-	function updateCountdown($wrapper, targetDate, $button) {
+	function updateCountdown($wrapper, targetDate, $button, $buttonRoot, $statusBox) {
 		const now = new Date();
 		const timeDiff = targetDate - now;
 
 		// Check if countdown has finished.
 		if (timeDiff <= 0) {
-			debug.log('⏰ COUNTDOWN FINISHED! Hiding counter and showing buttons.');
-			
+			debug.log('COUNTDOWN FINISHED! Revealing buttons and status box.');
+
 			// Clear interval.
 			if (countdownInterval) {
 				clearInterval(countdownInterval);
@@ -152,43 +136,46 @@
 				$(this).remove();
 			});
 
-			// Show Seat Planner button with fade in (only if button exists - for auditorium products).
+			// Show Seat Planner button wrapper.
 			if ($button && $button.length > 0) {
-				debug.log('Showing Seat Planner button (auditorium product)');
 				$button
 					.removeClass('as-cai-button-hidden')
 					.addClass('as-cai-button-visible')
 					.fadeIn(400);
 			}
 
-			// Also show standard WooCommerce add-to-cart buttons.
-			const $addToCartButton = $('.single_add_to_cart_button, .add_to_cart_button');
-			if ($addToCartButton.length > 0) {
-				debug.log('Showing standard WooCommerce add-to-cart button');
-				$addToCartButton.fadeIn(400);
+			// Show Seat Planner add-to-cart root.
+			if ($buttonRoot && $buttonRoot.length > 0) {
+				$buttonRoot
+					.removeClass('as-cai-button-hidden')
+					.addClass('as-cai-button-visible')
+					.fadeIn(400);
 			}
 
-			// Show WooCommerce variations form if it was hidden.
-			const $variationsForm = $('.variations_form, .cart');
-			if ($variationsForm.length > 0) {
-				debug.log('Showing WooCommerce cart/variations form');
-				$variationsForm.fadeIn(400);
+			// Show status box.
+			if ($statusBox && $statusBox.length > 0) {
+				$statusBox
+					.removeClass('as-cai-button-hidden')
+					.addClass('as-cai-button-visible')
+					.fadeIn(400);
 			}
+
+			// Also show standard WooCommerce add-to-cart buttons.
+			$('.single_add_to_cart_button, .add_to_cart_button').fadeIn(400);
+
+			// Show WooCommerce variations form if it was hidden.
+			$('.variations_form, .cart').fadeIn(400);
 
 			// Trigger custom event.
 			$(document).trigger('as-cai-product-available');
-			debug.log('Custom event "as-cai-product-available" triggered');
 
 			// Clear caches and reload to ensure fresh availability data.
-			debug.log('Clearing caches and triggering page refresh...');
 			setTimeout(function() {
-				// Clear WooCommerce cart fragments cache
 				if (typeof sessionStorage !== 'undefined') {
 					sessionStorage.removeItem('wc_fragments');
 					sessionStorage.removeItem('wc_cart_hash');
 					sessionStorage.removeItem('wc_cart_created');
 				}
-				// Force hard reload bypassing browser cache
 				location.replace(location.href.split('#')[0] + (location.href.indexOf('?') > -1 ? '&' : '?') + '_nocache=' + Date.now());
 			}, 500);
 
