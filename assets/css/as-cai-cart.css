@@ -1,0 +1,101 @@
+/* BG Camp Availability Integration - Cart Styles */
+
+.as-cai-cart-countdown {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	padding: 20px;
+	border-radius: 8px;
+	margin-bottom: 20px;
+	box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+	animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.as-cai-countdown-inner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.as-cai-countdown-inner i {
+	font-size: 24px;
+	animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.6; }
+}
+
+.as-cai-countdown-time {
+	font-family: 'Monaco', 'Courier New', monospace;
+	font-size: 24px;
+	font-weight: 700;
+	letter-spacing: 1px;
+}
+
+/* Minimal Style */
+.as-cai-countdown-minimal {
+	background: #f8f9fa;
+	color: #495057;
+	padding: 12px 20px;
+	border-left: 4px solid #667eea;
+}
+
+.as-cai-countdown-minimal .as-cai-countdown-inner {
+	justify-content: flex-start;
+	font-size: 16px;
+}
+
+/* Progress Bar Style */
+.as-cai-countdown-progress {
+	width: 100%;
+	height: 6px;
+	background: rgba(255, 255, 255, 0.3);
+	border-radius: 3px;
+	margin-top: 12px;
+	overflow: hidden;
+}
+
+.as-cai-countdown-progress-bar {
+	height: 100%;
+	background: white;
+	border-radius: 3px;
+	transition: width 1s linear;
+	box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Warning State */
+.as-cai-cart-countdown.warning {
+	background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+	animation: pulse 1s ease-in-out infinite;
+}
+
+/* Expired State */
+.as-cai-cart-countdown.expired {
+	background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.as-cai-countdown-inner {
+		font-size: 16px;
+	}
+	
+	.as-cai-countdown-time {
+		font-size: 20px;
+	}
+}

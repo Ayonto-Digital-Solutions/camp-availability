@@ -1,0 +1,538 @@
+/**
+ * Order Confirmation Shortcode Styles
+ *
+ * Modern card-based layout without tables
+ * Fully responsive and accessible
+ *
+ * @package AS_Camp_Availability_Integration
+ * @since 1.3.48
+ */
+
+/* CSS Variables */
+:root {
+	--as-cai-primary-color: var(--e-global-color-primary, #B19E63);
+	--as-cai-text-color: var(--e-global-color-text, #F8F8F8);
+	--as-cai-gold-hover: #d4b877;
+	--as-cai-gold-dark: #8f7d4d;
+}
+
+/* Container */
+.as-cai-order-confirmation {
+	/* Full width - keine Begrenzung */
+}
+
+/* Title */
+.as-cai-order-title {
+	margin: 0 0 30px 0;
+	padding: 0;
+	font-size: 32px;
+	font-weight: 700;
+	color: var(--as-cai-text-color);
+	text-align: left;
+}
+
+/* Headings */
+.as-cai-order-confirmation h2 {
+	color: var(--as-cai-text-color);
+	font-weight: 600;
+}
+
+.as-cai-order-confirmation h3 {
+	color: var(--as-cai-primary-color);
+	font-size: 24px;
+	margin: 40px 0 20px 0;
+	font-weight: 600;
+}
+
+.as-cai-order-confirmation h4 {
+	color: var(--as-cai-text-color);
+	font-weight: 600;
+}
+
+.as-cai-order-confirmation h4 {
+	font-size: 18px;
+	margin: 20px 0 15px 0;
+}
+
+/* Order Header - Info Cards */
+.as-cai-order-header {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
+	margin-bottom: 30px;
+}
+
+.as-cai-order-header > div {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.as-cai-order-header strong {
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-weight: 600;
+}
+
+.as-cai-order-header span {
+	color: #fff;
+	font-size: 18px;
+	font-weight: 600;
+}
+
+/* Customer Details */
+.as-cai-customer-details {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	padding: 25px;
+	margin: 30px 0;
+}
+
+.as-cai-customer-details h3 {
+	margin-top: 0;
+	margin-bottom: 20px;
+}
+
+.as-cai-customer-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
+}
+
+.as-cai-customer-item {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.as-cai-customer-item strong {
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-weight: 600;
+}
+
+.as-cai-customer-item span {
+	color: #fff;
+	font-size: 16px;
+}
+
+.as-cai-customer-item a {
+	color: #B19E63;
+	text-decoration: none;
+	transition: color 0.2s ease;
+}
+
+.as-cai-customer-item a:hover {
+	color: #d4b877;
+	text-decoration: underline;
+}
+
+/* Order Items Section */
+.as-cai-order-items {
+	margin: 40px 0;
+}
+
+.as-cai-category-group {
+	margin: 30px 0;
+}
+
+.as-cai-category-name {
+	background: rgba(255, 255, 255, 0.05);
+	padding: 15px 20px;
+	margin: 0 0 20px 0;
+	border-radius: 8px;
+	font-size: 18px;
+	font-weight: 600;
+	color: #fff;
+	border-left: 4px solid #B19E63;
+}
+
+/* Items Grid - Modern Card Layout */
+.as-cai-items-grid {
+	display: grid;
+	gap: 20px;
+}
+
+.as-cai-item-card {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	padding: 20px;
+	transition: all 0.3s ease;
+}
+
+.as-cai-item-card:hover {
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(255, 255, 255, 0.2);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Item Header */
+.as-cai-item-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 20px;
+	margin-bottom: 15px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.as-cai-item-name {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.as-cai-item-label {
+	color: rgba(255, 255, 255, 0.5);
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-weight: 600;
+}
+
+.as-cai-item-name strong {
+	color: #fff;
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.as-cai-sku {
+	color: rgba(255, 255, 255, 0.5);
+	font-size: 12px;
+	font-weight: 400;
+}
+
+.as-cai-item-price {
+	font-size: 24px;
+	font-weight: 700;
+	color: #B19E63;
+	white-space: nowrap;
+}
+
+/* Item Details (Parzelle) */
+.as-cai-item-details {
+	margin-top: 15px;
+}
+
+.as-cai-detail-label {
+	display: block;
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-weight: 600;
+	margin-bottom: 10px;
+}
+
+.as-cai-detail-content {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+/* Variation List */
+.as-cai-variation-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.as-cai-variation-list li {
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.as-cai-variation-list strong {
+	color: rgba(255, 255, 255, 0.7);
+	font-weight: 600;
+	font-size: 13px;
+}
+
+/* Inline Variation (Compact Layout) */
+.as-cai-variation-inline {
+	color: var(--as-cai-text-color);
+	font-size: 14px;
+	line-height: 1.6;
+	margin-bottom: 10px;
+}
+
+.as-cai-variation-inline strong {
+	color: rgba(248, 248, 248, 0.7);
+	font-weight: 600;
+	font-size: 13px;
+}
+
+.as-cai-variation-inline .as-cai-separator {
+	color: rgba(248, 248, 248, 0.4);
+	padding: 0 6px;
+}
+
+/* Seats */
+.as-cai-seats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.as-cai-seat-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, #B19E63 0%, #8f7d4d 100%);
+	color: #fff;
+	padding: 8px 16px;
+	border-radius: 20px;
+	font-size: 13px;
+	font-weight: 600;
+	box-shadow: 0 2px 8px rgba(177, 158, 99, 0.3);
+	transition: all 0.2s ease;
+}
+
+.as-cai-seat-badge:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(177, 158, 99, 0.4);
+}
+
+/* Order Totals */
+.as-cai-order-totals {
+	margin: 40px 0;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.as-cai-totals-card {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	padding: 25px;
+	min-width: 350px;
+	max-width: 100%;
+}
+
+.as-cai-total-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 12px 0;
+	gap: 30px;
+}
+
+.as-cai-total-row:not(:last-child) {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.as-cai-total-row span {
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 15px;
+}
+
+.as-cai-total-row strong {
+	color: #fff;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.as-cai-total-row.as-cai-total {
+	margin-top: 10px;
+	padding-top: 20px;
+	border-top: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.as-cai-total-row.as-cai-total span,
+.as-cai-total-row.as-cai-total strong {
+	font-size: 20px;
+	font-weight: 700;
+	color: #B19E63;
+}
+
+/* Payment Method */
+.as-cai-payment-method {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	padding: 20px;
+	margin: 20px 0;
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+.as-cai-payment-method strong {
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-weight: 600;
+}
+
+.as-cai-payment-method span {
+	color: #fff;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+/* Status Badges */
+.as-cai-status {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 6px 14px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.as-cai-status-pending {
+	background: linear-gradient(135deg, #f0ad4e 0%, #ec971f 100%);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(240, 173, 78, 0.3);
+}
+
+.as-cai-status-processing {
+	background: linear-gradient(135deg, #5bc0de 0%, #46b8da 100%);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(91, 192, 222, 0.3);
+}
+
+.as-cai-status-completed {
+	background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(92, 184, 92, 0.3);
+}
+
+.as-cai-status-cancelled,
+.as-cai-status-failed {
+	background: linear-gradient(135deg, #d9534f 0%, #c9302c 100%);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(217, 83, 79, 0.3);
+}
+
+.as-cai-status-on-hold {
+	background: linear-gradient(135deg, #f0ad4e 0%, #ec971f 100%);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(240, 173, 78, 0.3);
+}
+
+.as-cai-status-refunded {
+	background: linear-gradient(135deg, #999 0%, #777 100%);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(153, 153, 153, 0.3);
+}
+
+/* Error Message */
+.as-cai-order-error {
+	background: rgba(217, 83, 79, 0.1);
+	border: 1px solid rgba(217, 83, 79, 0.3);
+	color: #ff6b6b;
+	padding: 20px;
+	border-radius: 12px;
+	margin: 20px 0;
+	font-weight: 500;
+}
+
+/* Print Styles */
+@media print {
+	.as-cai-item-card {
+		border: 1px solid #ddd;
+		page-break-inside: avoid;
+	}
+
+	.as-cai-seat-badge {
+		box-shadow: none;
+	}
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+	.as-cai-order-title {
+		font-size: 24px;
+	}
+
+	.as-cai-order-header {
+		grid-template-columns: 1fr;
+		gap: 15px;
+	}
+
+	.as-cai-customer-grid {
+		grid-template-columns: 1fr;
+		gap: 15px;
+	}
+
+	.as-cai-item-header {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.as-cai-item-price {
+		font-size: 20px;
+		text-align: left;
+	}
+
+	.as-cai-totals-card {
+		min-width: auto;
+	}
+
+	.as-cai-total-row {
+		gap: 15px;
+	}
+
+	.as-cai-payment-method {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.as-cai-order-confirmation {
+		padding: 0;
+	}
+
+	.as-cai-order-header > div,
+	.as-cai-customer-details,
+	.as-cai-item-card,
+	.as-cai-totals-card,
+	.as-cai-payment-method {
+		padding: 15px;
+	}
+
+	.as-cai-order-title {
+		font-size: 20px;
+		margin-bottom: 20px;
+	}
+
+	.as-cai-item-name strong {
+		font-size: 16px;
+	}
+
+	.as-cai-variation-list li {
+		font-size: 13px;
+	}
+
+	.as-cai-seat-badge {
+		font-size: 12px;
+		padding: 6px 12px;
+	}
+}

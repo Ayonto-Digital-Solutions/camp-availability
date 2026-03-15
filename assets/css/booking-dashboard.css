@@ -1,0 +1,261 @@
+/**
+ * Booking Dashboard Styles
+ *
+ * @package AS_Camp_Availability_Integration
+ * @since 1.3.42
+ */
+
+/* Dashboard Container */
+.as-cai-booking-dashboard {
+	padding: 20px;
+}
+
+.as-cai-dashboard-info {
+	background: #f0f6fc;
+	border-left: 4px solid #0073aa;
+	padding: 15px;
+	margin: 20px 0;
+}
+
+.as-cai-dashboard-info p {
+	margin: 0;
+	color: #333;
+}
+
+/* Filters */
+.as-cai-filters {
+	background: #fff;
+	border: 1px solid #ddd;
+	padding: 20px;
+	margin: 20px 0;
+	border-radius: 4px;
+}
+
+.as-cai-filter-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 15px;
+	align-items: flex-end;
+}
+
+.as-cai-filter-item {
+	flex: 1;
+	min-width: 200px;
+}
+
+.as-cai-filter-item label {
+	display: block;
+	margin-bottom: 5px;
+	font-weight: 600;
+	color: #333;
+}
+
+.as-cai-filter-item select,
+.as-cai-filter-item input[type="date"] {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+/* Statistics */
+.as-cai-stats {
+	margin: 20px 0;
+}
+
+.as-cai-stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 15px;
+	margin: 20px 0;
+}
+
+.as-cai-stat-card {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	text-align: center;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.as-cai-stat-value {
+	font-size: 32px;
+	font-weight: bold;
+	color: #2271b1;
+	margin-bottom: 5px;
+}
+
+.as-cai-stat-label {
+	font-size: 14px;
+	color: #666;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* Category Sections */
+.as-cai-category-section {
+	margin: 30px 0;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.as-cai-category-title {
+	background: #f7f7f7;
+	border-bottom: 2px solid #2271b1;
+	padding: 15px 20px;
+	margin: 0;
+	font-size: 18px;
+	color: #333;
+}
+
+.as-cai-booking-count {
+	font-size: 14px;
+	color: #666;
+	font-weight: normal;
+	margin-left: 10px;
+}
+
+/* Table Styles */
+.as-cai-bookings-table {
+	margin: 0;
+	border: none;
+}
+
+.as-cai-bookings-table th {
+	background: #f9f9f9;
+	font-weight: 600;
+	text-align: left;
+	padding: 12px;
+}
+
+.as-cai-bookings-table td {
+	padding: 12px;
+	vertical-align: middle;
+}
+
+.as-cai-bookings-table tbody tr:hover {
+	background: #f5f5f5;
+}
+
+.as-cai-bookings-table a {
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.as-cai-bookings-table a:hover {
+	text-decoration: underline;
+}
+
+/* Status Badges */
+.as-cai-status {
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.as-cai-status-pending {
+	background: #f0ad4e;
+	color: #fff;
+}
+
+.as-cai-status-processing {
+	background: #5bc0de;
+	color: #fff;
+}
+
+.as-cai-status-completed {
+	background: #5cb85c;
+	color: #fff;
+}
+
+.as-cai-status-cancelled,
+.as-cai-status-failed {
+	background: #d9534f;
+	color: #fff;
+}
+
+.as-cai-status-on-hold {
+	background: #f0ad4e;
+	color: #fff;
+}
+
+.as-cai-status-refunded {
+	background: #999;
+	color: #fff;
+}
+
+/* No Bookings Message */
+.as-cai-no-bookings {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 40px;
+	text-align: center;
+	color: #666;
+}
+
+.as-cai-no-bookings p {
+	font-size: 16px;
+	margin: 0;
+}
+
+/* Export Section */
+.as-cai-export {
+	margin: 30px 0;
+	text-align: right;
+}
+
+/* Print Styles */
+@media print {
+	.as-cai-filters,
+	.as-cai-export,
+	.wp-heading-inline,
+	#wpbody-content > .wrap > h1:first-child,
+	.page-title-action {
+		display: none !important;
+	}
+
+	.as-cai-category-section {
+		page-break-inside: avoid;
+		margin-top: 20px;
+	}
+
+	.as-cai-bookings-table {
+		font-size: 10px;
+	}
+
+	.as-cai-bookings-table th,
+	.as-cai-bookings-table td {
+		padding: 6px;
+	}
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+	.as-cai-filter-row {
+		flex-direction: column;
+	}
+
+	.as-cai-filter-item {
+		width: 100%;
+	}
+
+	.as-cai-stats-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.as-cai-bookings-table {
+		font-size: 12px;
+	}
+
+	.as-cai-bookings-table th,
+	.as-cai-bookings-table td {
+		padding: 8px;
+	}
+}
