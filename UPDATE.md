@@ -1,19 +1,63 @@
-# UPDATE v1.3.58 - Security Hardening 🔒
+# UPDATE v1.3.71 - Ayonto Brand Identity 2026
 
-**Release-Datum:** 2025-10-31  
-**Update-Typ:** PATCH (Security Hardening)  
-**Priority:** 🟡 **EMPFOHLEN**
+**Release-Datum:** 2026-03-15
+**Update-Typ:** MINOR (UI Redesign)
+**Priority:** 🟢 **EMPFOHLEN**
 
 ---
 
 ## 📋 ZUSAMMENFASSUNG
 
-v1.3.58 ist ein **empfohlenes Security-Update**, das alle Low-Priority Security-Findings aus dem Deep Audit Report behebt.
+v1.3.71 bringt das Admin-Panel auf die **Ayonto Brand Identity 2026**. Komplett überarbeitetes Farbschema, Ayonto-Logo im Header und modernes, flaches Design.
 
-**Security Score:** 92/100 (A-) → **98/100 (A+)**
+**Breaking Changes:** Keine
+**Empfehlung:** Empfohlen für einheitliches Branding
 
-**Breaking Changes:** Keine  
-**Empfehlung:** Empfohlen für maximale Sicherheit
+---
+
+## 🎨 DESIGN UPDATE
+
+### Neues Farbschema
+- **Primärfarbe:** `#0583F2` (Ayonto-Blau) statt `#667eea`/`#764ba2` (lila Gradient)
+- **Header:** `#1A1A1A` (Eerie Black) mit blauem Akzentstrich
+- **Tabellenheader:** Dunkler Hintergrund für bessere Lesbarkeit
+
+### Header
+- Ayonto-Logo (`ayonto-icon-white.png`) statt Font Awesome Campground-Icon
+- Kompakterer, modernerer Aufbau
+
+### UI-Modernisierung
+- Flache Farben statt schwerer Gradienten
+- Tabs: Solid Blue Active-State
+- Buttons: Flat Primary-Color
+- Dezentere Schatten und subtilere Borders
+- Kompaktere Abstände
+
+### Geänderte Dateien
+- `assets/css/as-cai-admin.css` — Komplett überarbeitet
+- `includes/class-as-cai-admin.php` — Header mit Logo
+- `assets/img/ayonto-icon-white.png` — Neu hinzugefügt
+- `assets/img/ayonto-icon.png` — Neu hinzugefügt
+- `assets/img/ayonto-logo.png` — Neu hinzugefügt
+
+---
+
+## 📦 VORHERIGE UPDATES (v1.3.59–v1.3.70)
+
+| Version | Datum | Beschreibung |
+|---------|-------|--------------|
+| v1.3.70 | 2026-03-15 | Test-Suite komplett überarbeitet |
+| v1.3.69 | 2026-03-15 | Veraltete Admin-Notice entfernt, check-version.sh erweitert |
+| v1.3.68 | 2026-03-14 | PDF-Druck komplett überarbeitet (Landscape) |
+| v1.3.67 | 2026-03-14 | In-App Updater komplett neu geschrieben |
+| v1.3.66 | 2026-03-14 | Sortierbare Spalten, PDF-Fix, Version-Check Script |
+| v1.3.65 | 2026-03-13 | Code Review Fixes, Settings auf Deutsch |
+| v1.3.64 | 2026-03-13 | Live GitHub Update-Check mit Version-Switcher |
+| v1.3.63 | 2026-03-13 | Server-side Availability Gate |
+| v1.3.62 | 2026-03-12 | Plugin-Icon, Update-Button, XSS-Fix |
+| v1.3.61 | 2026-03-12 | CSV Export, Cache Reset Fix |
+| v1.3.60 | 2026-03-12 | Rebranding: Battleground → Ayonto |
+| v1.3.59 | 2026-03-11 | Translation Override, Status Display, GitHub Updater |
 
 ---
 

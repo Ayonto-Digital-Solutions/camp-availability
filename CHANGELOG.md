@@ -7,6 +7,99 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [1.3.71] - 2026-03-15
+
+### Changed
+- **Admin-Panel komplett auf Ayonto Brand Identity 2026 umgestellt**
+  - Neues Farbschema: Ayonto-Blau `#0583F2` ersetzt lila Gradient
+  - Header mit Ayonto-Logo statt Font Awesome Icon
+  - Flaches, modernes UI ohne schwere Gradienten
+  - Dunklere Tabellenheader (`#1A1A1A`)
+  - Dezentere Schatten und cleaner 2026-Look
+
+## [1.3.70] - 2026-03-15
+
+### Changed
+- **Test-Suite komplett überarbeitet**
+  - Alle Texte auf Deutsch mit `__()` i18n-Wrappers
+  - Tabellenbasierte Ergebnis-Ausgabe statt Array-Dumps
+  - Test 1 repariert: Direct DB Insert statt `reserve_stock()`
+  - 7 Tests: DB-Tabelle, Reservierung, Expire-Filter, WC Cart, WC Session, Seat Planner Transient, Hooks
+
+## [1.3.69] - 2026-03-15
+
+### Removed
+- Veraltete Admin-Notice `display_optional_plugins_notice()` entfernt (war seit v1.3.30 überholt)
+- `$optional_plugins`-Array und Koalaapps-Check aus `check_dependencies()` entfernt
+
+### Changed
+- `check-version.sh` erweitert: Prüft jetzt auch auf veralteten Code (deprecated notices, alte Domain-Referenzen, ungeschützte console.log)
+
+## [1.3.68] - 2026-03-14
+
+### Fixed
+- **PDF-Druck komplett überarbeitet**: Landscape-Modus, keine leere erste Seite mehr, auto-sizing Spalten, Header-Wiederholung auf jeder Seite
+
+## [1.3.67] - 2026-03-14
+
+### Fixed
+- **In-App Updater komplett neu geschrieben**: Manual Download/Extract/Replace statt Plugin_Upgrader (der bei bestehenden Plugins nicht funktionierte)
+
+## [1.3.66] - 2026-03-14
+
+### Added
+- **Sortierbare Spalten** im Buchungs-Dashboard (Name, E-Mail, Parzelle, Bestellnummer, Datum)
+- **Version-Check Script** `check-version.sh` zur Überwachung aller Versionsstellen
+
+### Fixed
+- PDF-Druck zeigt jetzt nur Tabellen statt der gesamten Seite
+
+## [1.3.65] - 2026-03-13
+
+### Changed
+- Code Review Fixes und Settings-Reorganisation (komplett auf Deutsch)
+- Direct Version Install im Admin-Panel
+
+## [1.3.64] - 2026-03-13
+
+### Added
+- Live GitHub Update-Check mit Version-Switcher im Admin-Panel
+
+## [1.3.63] - 2026-03-13
+
+### Added
+- Server-side Availability Gate für Seat Planner und Status Box
+
+## [1.3.62] - 2026-03-12
+
+### Added
+- SVG Plugin-Icon für WordPress Plugin-Liste und Update-Screen
+- Update-Check Button in Plugin-Einstellungen
+
+### Fixed
+- Markdown-Parser: HTML wird vor Verarbeitung escaped (XSS-Prevention)
+
+## [1.3.61] - 2026-03-12
+
+### Added
+- CSV Export für Buchungs-Dashboard
+
+### Fixed
+- Cache Reset bei Timer-Ablauf
+
+## [1.3.60] - 2026-03-12
+
+### Changed
+- Rebranding: BG Camp → Ayonto Camp
+- Alle Battleground.de Referenzen durch ayon.to ersetzt
+
+## [1.3.59] - 2026-03-11
+
+### Added
+- Translation Override System
+- Status Display Komponente
+- GitHub Auto-Updater für Zero-Config Updates
+
 ## [1.3.58] - 2025-10-31
 
 ### 🔒 SECURITY - Security Hardening Update
