@@ -7,7 +7,7 @@
  * Requires at least: 6.5
  * Requires PHP:      8.0
  * Author:            Marc Mirschel
- * Author URI:        https://mirschel.biz
+ * Author URI:        https://marc.mirschel.biz
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       as-camp-availability-integration

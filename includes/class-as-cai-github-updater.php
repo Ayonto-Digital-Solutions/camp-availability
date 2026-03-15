@@ -270,7 +270,7 @@ class AS_CAI_GitHub_Updater {
 		$info->name          = 'BG Camp Availability Integration';
 		$info->slug          = $this->slug;
 		$info->version       = $release->tag_name;
-		$info->author        = '<a href="https://mirschel.biz">Marc Mirschel</a>';
+		$info->author        = '<a href="https://marc.mirschel.biz">Marc Mirschel</a>';
 		$info->homepage      = 'https://github.com/' . $this->repo;
 		$info->requires      = '6.5';
 		$info->requires_php  = '8.0';

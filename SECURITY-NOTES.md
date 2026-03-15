@@ -152,7 +152,7 @@ Header set X-Frame-Options "SAMEORIGIN"
 Sicherheitslücken bitte verantwortungsvoll melden:
 
 1. **NICHT öffentlich posten**
-2. **Kontakt:** security@mirschel.biz
+2. **Kontakt:** security@marc.mirschel.biz
 3. **PGP-Key:** Auf Anfrage
 4. **Response Time:** 48 Stunden
 
@@ -183,7 +183,7 @@ Sicherheitslücken bitte verantwortungsvoll melden:
 ## 🚨 Notfall-Kontakte
 
 **Kritische Sicherheitslücken:**
-- Email: security@mirschel.biz
+- Email: security@marc.mirschel.biz
 - Response: Innerhalb 24h
 
 **Support:**

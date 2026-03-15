@@ -2,7 +2,7 @@
 
 **Version:** 1.3.58  
 **Author:** Marc Mirschel  
-**Author URI:** https://mirschel.biz  
+**Author URI:** https://marc.mirschel.biz  
 **Plugin URI:** https://ayon.to
 
 ## Beschreibung
@@ -216,7 +216,7 @@ Das Plugin verwendet ein einheitliches Design-System:
 Für Support und Fragen:
 - **Email:** kundensupport@zoobro.de
 - **Website:** https://ayon.to
-- **Entwickler:** Marc Mirschel (https://mirschel.biz)
+- **Entwickler:** Marc Mirschel (https://marc.mirschel.biz)
 
 ## Kompatibilität
 
