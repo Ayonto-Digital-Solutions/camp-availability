@@ -88,8 +88,8 @@ class AS_CAI_GitHub_Updater {
 	 * Constructor.
 	 */
 	private function __construct() {
-		$this->slug     = 'as-camp-availability-integration';
-		$this->basename = defined( 'AS_CAI_PLUGIN_BASENAME' ) ? AS_CAI_PLUGIN_BASENAME : $this->slug . '/' . $this->slug . '.php';
+		$this->basename = defined( 'AS_CAI_PLUGIN_BASENAME' ) ? AS_CAI_PLUGIN_BASENAME : 'camp-availability-integration/as-camp-availability-integration.php';
+		$this->slug     = dirname( $this->basename );
 		$this->version  = defined( 'AS_CAI_VERSION' ) ? AS_CAI_VERSION : '0.0.0';
 
 		// Repository is hardcoded — no configuration needed.
