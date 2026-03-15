@@ -721,6 +721,24 @@ class AS_CAI_Admin {
 		$countdown_position  = get_option( 'as_cai_countdown_position', 'before_add_to_cart' );
 		$countdown_style     = get_option( 'as_cai_countdown_style', 'default' );
 		?>
+		<!-- Update Check Section -->
+		<div class="as-cai-settings-section" style="margin-bottom: 24px;">
+			<h3 style="font-size: 1.125rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+				<i class="fas fa-sync-alt" style="color: var(--as-primary);"></i>
+				<?php esc_html_e( 'Plugin Update', 'as-camp-availability-integration' ); ?>
+			</h3>
+			<div class="as-cai-settings-row" style="align-items: center;">
+				<div class="as-cai-settings-label">
+					<strong><?php printf( esc_html__( 'Installierte Version: %s', 'as-camp-availability-integration' ), esc_html( AS_CAI_VERSION ) ); ?></strong>
+					<p><?php esc_html_e( 'Prüft ob eine neue Version auf GitHub verfügbar ist.', 'as-camp-availability-integration' ); ?></p>
+				</div>
+				<a href="<?php echo esc_url( admin_url( 'update-core.php?force-check=1' ) ); ?>" class="as-cai-btn as-cai-btn-primary" style="white-space: nowrap;">
+					<i class="fas fa-sync-alt"></i>
+					<?php esc_html_e( 'Auf Update prüfen', 'as-camp-availability-integration' ); ?>
+				</a>
+			</div>
+		</div>
+
 		<div class="as-cai-settings-section">
 			<h3 style="font-size: 1.125rem; font-weight: 600; color: var(--as-gray-900); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
 				<i class="fas fa-clock" style="color: var(--as-primary);"></i>
