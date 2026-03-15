@@ -7,6 +7,19 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [1.3.79] - 2026-03-15
+
+### Rebuilt
+- **Status-Display-Box komplett neu aufgebaut — 100% korrekte Daten**
+  - **Einzige Datenquelle: WooCommerce Stock** (`get_stock_quantity()`) — kein Stachethemes-Fallback mehr
+  - Verfügbar = WC Stock (Stachethemes synchronisiert automatisch bei Bestellung/Erstattung)
+  - Verkauft = Nur Bestellungen mit gültigen Status (processing, completed, on-hold, pending)
+  - Gesamt = Verfügbar + Verkauft
+  - Reserviert = Parzellen in Warenkörben (eigenes Reservierungssystem + Stachethemes Transients)
+  - Entfernt: `count_from_seat_plan()`, `get_taken_seats()`-Fallback, `reserved_full`-Timer
+  - Neuer Status `reserved_full` wenn alle verfügbaren Parzellen in Warenkörben liegen
+  - Warteliste-Button auch bei `reserved_full` sichtbar
+
 ## [1.3.78] - 2026-03-15
 
 ### Removed

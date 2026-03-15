@@ -3,53 +3,41 @@
  *
  * @package AS_Camp_Availability_Integration
  * @since   1.3.59
+ * @updated 1.3.79
  */
 (function ($) {
 	'use strict';
 
 	var StatusLiveUpdate = function () {
-		this.updateInterval = 15000; // 15 seconds
+		this.updateInterval = 15000;
 		this.refreshIntervals = [];
-		this.countdownInterval = null;
 		this.init();
 	};
 
 	StatusLiveUpdate.prototype.init = function () {
 		var self = this;
 
-		// Auto-refresh for all status boxes.
 		$('.as-cai-status-box').each(function () {
 			self.startAutoRefresh($(this));
 		});
 
-		// Manual refresh button.
 		$(document).on('click', '.as-cai-refresh-button', function (e) {
 			e.preventDefault();
 			var $box = $(e.target).closest('.as-cai-status-box');
 			self.refreshStatus($box);
 		});
 
-		// Notify button — show email prompt.
 		$(document).on('click', '.as-cai-notify-button, .as-cai-waitlist-button', function (e) {
 			e.preventDefault();
 			var productId = $(this).data('product-id') || $(this).closest('.as-cai-status-box').data('product-id');
 			self.showNotifyPrompt(productId);
 		});
-
-		// Countdown updates every second.
-		this.updateCountdowns();
-		this.countdownInterval = setInterval(function () {
-			self.updateCountdowns();
-		}, 1000);
 	};
 
 	StatusLiveUpdate.prototype.startAutoRefresh = function ($box) {
 		var self     = this;
 		var interval = $box.data('refresh-interval') || this.updateInterval;
-
-		var id = setInterval(function () {
-			self.refreshStatus($box);
-		}, interval);
+		var id = setInterval(function () { self.refreshStatus($box); }, interval);
 		this.refreshIntervals.push(id);
 	};
 
@@ -57,9 +45,7 @@
 		var self      = this;
 		var productId = $box.data('product-id');
 
-		if (!productId || typeof as_cai_vars === 'undefined') {
-			return;
-		}
+		if (!productId || typeof as_cai_vars === 'undefined') return;
 
 		$box.addClass('updating');
 
@@ -77,9 +63,6 @@
 					self.showUpdateNotification($box);
 				}
 			},
-			error: function () {
-				// Silent fail — will retry on next interval.
-			},
 			complete: function () {
 				$box.removeClass('updating');
 				self.updateTimestamp($box);
@@ -90,38 +73,31 @@
 	StatusLiveUpdate.prototype.updateStatusBox = function ($box, data) {
 		var self = this;
 
-		// Update availability numbers.
+		// Update numbers.
 		$box.find('.availability-main strong').text(
 			data.available + ' von ' + data.total + ' Parzellen'
 		);
 
 		// Update progress bar.
 		$box.find('.progress-available').css('width', data.percent_free + '%');
-		var reservedPercent = data.total > 0 ? (data.reserved / data.total) * 100 : 0;
-		$box.find('.progress-reserved').css('width', reservedPercent + '%');
-		$box.find('.label-available').text(Math.round(data.percent_free) + '% frei');
+		$box.find('.label-available').text(Math.round(data.percent_free) + '% verfügbar');
+		$box.find('.label-sold').text(data.sold + ' verkauft');
 
-		// Update badges.
+		// Update reserved info.
 		if (data.reserved > 0) {
-			if ($box.find('.reserved-badge').length) {
-				$box.find('.reserved-badge').text('\uD83D\uDD56 ' + data.reserved + ' reserviert');
-			}
-		}
-		if (data.sold > 0) {
-			if ($box.find('.sold-badge').length) {
-				$box.find('.sold-badge').text('\u2713 ' + data.sold + ' verkauft');
-			}
+			$box.find('.reserved-badge').text('🔒 ' + data.reserved + ' reserviert').show();
+			var reservedPercent = data.total > 0 ? (data.reserved / data.total) * 100 : 0;
+			$box.find('.progress-reserved').css('width', reservedPercent + '%');
+		} else {
+			$box.find('.reserved-badge').hide();
+			$box.find('.progress-reserved').css('width', '0%');
 		}
 
-		// Change status class if needed.
+		// Update status class.
 		var statusClasses = ['status-available', 'status-limited', 'status-critical', 'status-reserved-full', 'status-sold-out'];
 		var currentClass  = '';
-
 		for (var i = 0; i < statusClasses.length; i++) {
-			if ($box.hasClass(statusClasses[i])) {
-				currentClass = statusClasses[i];
-				break;
-			}
+			if ($box.hasClass(statusClasses[i])) { currentClass = statusClasses[i]; break; }
 		}
 
 		var newClass = 'status-' + data.status.replace('_', '-');
@@ -129,84 +105,40 @@
 			$box.removeClass(statusClasses.join(' ')).addClass(newClass);
 			self.showStatusChangeAlert(data.status);
 
-			// Update header text based on new status.
-			var statusTitles = {
+			var titles = {
 				'available':     'Sofort buchbar',
 				'limited':       'Nur noch wenige Parzellen',
 				'critical':      'Letzte Parzellen!',
-				'reserved_full': 'Aktuell alle Parzellen reserviert',
+				'reserved_full': 'Alle Parzellen reserviert',
 				'sold_out':      'Ausgebucht'
 			};
-			var statusIcons = {
-				'available':     '\u2713',
-				'limited':       '\u26A0',
-				'critical':      '\u26A1',
-				'reserved_full': '\uD83D\uDD50',
-				'sold_out':      '\u2715'
+			var icons = {
+				'available':     '✓',
+				'limited':       '⚠',
+				'critical':      '⚡',
+				'reserved_full': '🔒',
+				'sold_out':      '✕'
 			};
-			if (statusTitles[data.status]) {
-				$box.find('.status-title').text(statusTitles[data.status]);
-				$box.find('.status-icon').text(statusIcons[data.status] || '');
+			if (titles[data.status]) {
+				$box.find('.status-title').text(titles[data.status]);
+				$box.find('.status-icon').text(icons[data.status] || '');
 			}
 
-			// Hide/show "Parzelle auswählen" button based on availability.
-			var $seatWrapper = $('.stachesepl-single-add-to-cart-button-wrapper');
-			var $seatRoot = $('.stachesepl-add-to-cart-button-root');
-			if (data.status === 'sold_out') {
-				$seatWrapper.hide();
-				$seatRoot.hide();
+			// Hide/show seat planner button.
+			var $seatBtn = $('.stachesepl-single-add-to-cart-button-wrapper, .stachesepl-add-to-cart-button-root');
+			if (data.status === 'sold_out' || data.status === 'reserved_full') {
+				$seatBtn.hide();
 			} else {
-				$seatWrapper.show();
-				$seatRoot.show();
+				$seatBtn.show();
 			}
-		}
-
-		// Update timer if present.
-		if (data.next_free_in) {
-			var targetTime = Math.floor(Date.now() / 1000) + data.next_free_in;
-			$box.find('.timer-countdown').attr('data-target', targetTime);
-		}
-	};
-
-	StatusLiveUpdate.prototype.updateCountdowns = function () {
-		$('.timer-countdown').each(function () {
-			var $el       = $(this);
-			var target    = parseInt($el.data('target'), 10);
-			var now       = Math.floor(Date.now() / 1000);
-			var remaining = Math.max(0, target - now);
-
-			if (remaining > 0) {
-				$el.text(StatusLiveUpdate.prototype.formatTime(remaining));
-				$el.removeClass('expired');
-			} else {
-				$el.text('Parzellen sollten jetzt frei sein!');
-				$el.addClass('expired');
-			}
-		});
-	};
-
-	StatusLiveUpdate.prototype.formatTime = function (seconds) {
-		if (seconds < 60) {
-			return seconds + ' Sek';
-		} else if (seconds < 3600) {
-			var mins = Math.floor(seconds / 60);
-			var secs = seconds % 60;
-			return mins + ':' + secs.toString().padStart(2, '0') + ' Min';
-		} else {
-			var hours   = Math.floor(seconds / 3600);
-			var minutes = Math.floor((seconds % 3600) / 60);
-			return hours + ':' + minutes.toString().padStart(2, '0') + ' Std';
 		}
 	};
 
 	StatusLiveUpdate.prototype.updateTimestamp = function ($box) {
-		var now     = new Date();
-		var timeStr = now.toLocaleTimeString('de-DE', {
-			hour:   '2-digit',
-			minute: '2-digit',
-			second: '2-digit'
-		});
-		$box.find('.update-time').text(timeStr);
+		var now = new Date();
+		$box.find('.update-time').text(now.toLocaleTimeString('de-DE', {
+			hour: '2-digit', minute: '2-digit', second: '2-digit'
+		}));
 	};
 
 	StatusLiveUpdate.prototype.showUpdateNotification = function ($box) {
@@ -225,10 +157,7 @@
 			'reserved_full': 'Alle Parzellen reserviert',
 			'sold_out':      'Ausgebucht'
 		};
-
-		if (messages[newStatus]) {
-			this.showToast(messages[newStatus], newStatus);
-		}
+		if (messages[newStatus]) this.showToast(messages[newStatus], newStatus);
 	};
 
 	StatusLiveUpdate.prototype.showToast = function (message, status) {
@@ -237,29 +166,21 @@
 			.text(message)
 			.appendTo('body');
 
-		setTimeout(function () {
-			$toast.addClass('show');
-		}, 100);
-
+		setTimeout(function () { $toast.addClass('show'); }, 100);
 		setTimeout(function () {
 			$toast.removeClass('show');
-			setTimeout(function () {
-				$toast.remove();
-			}, 300);
+			setTimeout(function () { $toast.remove(); }, 300);
 		}, 3000);
 	};
 
 	StatusLiveUpdate.prototype.showNotifyPrompt = function (productId) {
-		var self = this;
-
-		// Remove any existing modal.
 		$('.as-cai-modal-overlay').remove();
 
 		var modalHtml =
 			'<div class="as-cai-modal-overlay">' +
 				'<div class="as-cai-modal">' +
 					'<button type="button" class="as-cai-modal-close" aria-label="Schließen">&times;</button>' +
-					'<div class="as-cai-modal-icon">&#128276;</div>' +
+					'<div class="as-cai-modal-icon">🔔</div>' +
 					'<h3 class="as-cai-modal-title">Auf die Warteliste setzen</h3>' +
 					'<p class="as-cai-modal-text">Sobald eine Parzelle wieder verfügbar wird, benachrichtigen wir Sie per E-Mail.</p>' +
 					'<form class="as-cai-modal-form">' +
@@ -270,7 +191,7 @@
 							'<button type="button" class="as-cai-modal-btn-cancel">Abbrechen</button>' +
 							'<button type="submit" class="as-cai-modal-btn-submit">' +
 								'<span class="btn-text">Benachrichtigen</span>' +
-								'<span class="btn-loading" style="display:none;">Wird gesendet&hellip;</span>' +
+								'<span class="btn-loading" style="display:none;">Wird gesendet…</span>' +
 							'</button>' +
 						'</div>' +
 					'</form>' +
@@ -279,13 +200,11 @@
 
 		var $modal = $(modalHtml).appendTo('body');
 
-		// Animate in.
 		requestAnimationFrame(function () {
 			$modal.addClass('show');
 			$modal.find('#as-cai-notify-email').focus();
 		});
 
-		// Close handlers.
 		var closeModal = function () {
 			$modal.removeClass('show');
 			setTimeout(function () { $modal.remove(); }, 300);
@@ -299,7 +218,6 @@
 			if (e.key === 'Escape') { closeModal(); $(document).off('keydown.ascaimodal'); }
 		});
 
-		// Form submit.
 		$modal.find('.as-cai-modal-form').on('submit', function (e) {
 			e.preventDefault();
 			var email = $modal.find('#as-cai-notify-email').val().trim();
@@ -330,9 +248,8 @@
 				},
 				success: function (response) {
 					if (response.success) {
-						// Show success state.
 						$modal.find('.as-cai-modal').html(
-							'<div class="as-cai-modal-icon as-cai-modal-success-icon">&#10003;</div>' +
+							'<div class="as-cai-modal-icon as-cai-modal-success-icon">✓</div>' +
 							'<h3 class="as-cai-modal-title">Sie stehen auf der Warteliste!</h3>' +
 							'<p class="as-cai-modal-text">' + (response.data.message || 'Wir benachrichtigen Sie, sobald eine Parzelle frei wird.') + '</p>' +
 							'<div class="as-cai-modal-actions">' +
@@ -342,22 +259,17 @@
 						$modal.find('.as-cai-modal-btn-done').on('click', closeModal);
 					} else {
 						$error.text(response.data ? response.data.message : 'Ein Fehler ist aufgetreten.').show();
-						$btnText.show();
-						$btnLoading.hide();
-						$submit.prop('disabled', false);
+						$btnText.show(); $btnLoading.hide(); $submit.prop('disabled', false);
 					}
 				},
 				error: function () {
 					$error.text('Verbindungsfehler. Bitte versuchen Sie es erneut.').show();
-					$btnText.show();
-					$btnLoading.hide();
-					$submit.prop('disabled', false);
+					$btnText.show(); $btnLoading.hide(); $submit.prop('disabled', false);
 				}
 			});
 		});
 	};
 
-	// Initialize on page load.
 	$(document).ready(function () {
 		if ($('.as-cai-status-box').length) {
 			new StatusLiveUpdate();
