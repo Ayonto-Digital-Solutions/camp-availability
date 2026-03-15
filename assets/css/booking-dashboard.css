@@ -228,81 +228,128 @@
 	text-align: right;
 }
 
-/* Print Styles — only show booking tables */
+/* Print Styles — only show booking tables in landscape */
 @media print {
-	/* Hide entire WP admin chrome */
-	#adminmenumain,
-	#adminmenuback,
-	#adminmenuwrap,
-	#wpadminbar,
-	#wpfooter,
-	#screen-meta,
-	#screen-meta-links,
-	.update-nag,
-	.notice,
-	.updated,
-	.error,
-	#wpbody-content > .wrap > h1:first-child,
-	.page-title-action {
-		display: none !important;
+	/* Force landscape orientation for wide tables */
+	@page {
+		size: landscape;
+		margin: 10mm;
 	}
 
-	/* Hide dashboard UI elements */
+	/* Hide EVERYTHING first, then show only what we need */
+	body * {
+		visibility: hidden;
+	}
+	.as-cai-booking-dashboard,
+	.as-cai-booking-dashboard * {
+		visibility: visible;
+	}
+	.as-cai-booking-dashboard {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+	}
+
+	/* Hide dashboard UI elements that aren't tables */
 	.as-cai-filters,
 	.as-cai-export,
 	.as-cai-dashboard-info,
 	.as-cai-stats,
-	.as-cai-sort-icon {
+	.as-cai-sort-icon,
+	.as-cai-no-bookings {
 		display: none !important;
 	}
 
-	/* Reset WP admin layout so content fills the page */
+	/* Reset WP admin layout */
 	#wpcontent,
 	#wpbody,
-	#wpbody-content {
-		margin-left: 0 !important;
-		padding-left: 0 !important;
+	#wpbody-content,
+	#wpbody-content > .wrap {
+		margin: 0 !important;
+		padding: 0 !important;
+		float: none !important;
+		width: 100% !important;
 	}
 
 	html, body {
 		background: #fff !important;
+		margin: 0 !important;
+		padding: 0 !important;
 	}
 
-	/* Table print optimization */
+	/* Dashboard container */
+	.as-cai-booking-dashboard {
+		padding: 0 !important;
+	}
+
+	/* Category sections */
 	.as-cai-category-section {
-		page-break-inside: avoid;
-		margin: 10px 0;
+		margin: 0 0 12px 0;
 		border: 1px solid #999;
+		border-radius: 0;
 		box-shadow: none;
+		page-break-inside: auto;
 	}
 
 	.as-cai-category-title {
-		background: #eee !important;
+		background: #e8e8e8 !important;
 		-webkit-print-color-adjust: exact;
 		print-color-adjust: exact;
+		padding: 8px 10px;
+		font-size: 14px;
+		border-bottom: 1px solid #999;
 	}
 
+	/* Table: remove fixed layout so columns auto-size to content */
 	.as-cai-bookings-table {
-		font-size: 10px;
-		width: 100%;
+		table-layout: auto !important;
+		width: 100% !important;
+		font-size: 8pt;
+		border-collapse: collapse;
 	}
 
 	.as-cai-bookings-table th,
 	.as-cai-bookings-table td {
-		padding: 4px 6px;
-		border: 1px solid #ccc;
+		padding: 3px 5px;
+		border: 1px solid #bbb;
+		white-space: nowrap;
+		overflow: visible;
+	}
+
+	/* Allow E-Mail and Name to wrap if needed */
+	.as-cai-bookings-table td:nth-child(2),
+	.as-cai-bookings-table td:nth-child(3) {
+		white-space: normal;
+		word-break: break-all;
+		max-width: 140px;
 	}
 
 	.as-cai-bookings-table th {
 		background: #f0f0f0 !important;
 		-webkit-print-color-adjust: exact;
 		print-color-adjust: exact;
+		font-size: 7pt;
+		font-weight: 700;
 	}
 
-	/* Status badges need explicit color printing */
+	/* Repeat table header on every page */
+	.as-cai-bookings-table thead {
+		display: table-header-group;
+	}
+
+	/* Allow rows to break across pages */
+	.as-cai-bookings-table tr {
+		page-break-inside: avoid;
+	}
+
+	/* Status badges: compact for print */
 	.as-cai-status {
 		-webkit-print-color-adjust: exact;
 		print-color-adjust: exact;
+		padding: 1px 4px;
+		font-size: 7pt;
+		border-radius: 3px;
 		border: 1px solid #999;
 	}
 
@@ -310,17 +357,6 @@
 	.as-cai-bookings-table a {
 		color: #000 !important;
 		text-decoration: none !important;
-	}
-
-	/* Print header */
-	.as-cai-booking-dashboard::before {
-		content: "Buchungs-Dashboard";
-		display: block;
-		font-size: 18px;
-		font-weight: bold;
-		margin-bottom: 10px;
-		padding-bottom: 8px;
-		border-bottom: 2px solid #333;
 	}
 }
 
