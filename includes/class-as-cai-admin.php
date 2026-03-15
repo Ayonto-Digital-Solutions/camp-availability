@@ -136,6 +136,14 @@ class AS_CAI_Admin {
 			return;
 		}
 
+		// Google Fonts: Inter (modern UI font).
+		wp_enqueue_style(
+			'as-cai-google-fonts',
+			'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+			array(),
+			null
+		);
+
 		// Tailwind CSS (CDN).
 		wp_enqueue_style(
 			'as-cai-tailwind',
@@ -364,7 +372,7 @@ class AS_CAI_Admin {
 			</div>
 
 			<!-- Reserved Products Card -->
-			<div class="as-cai-stat-card green as-cai-fade-in" style="animation-delay: 0.1s;">
+			<div class="as-cai-stat-card green as-cai-fade-in">
 				<div class="as-cai-stat-icon">
 					<i class="fas fa-box"></i>
 				</div>
@@ -377,7 +385,7 @@ class AS_CAI_Admin {
 			</div>
 
 			<!-- Expired Today Card -->
-			<div class="as-cai-stat-card orange as-cai-fade-in" style="animation-delay: 0.2s;">
+			<div class="as-cai-stat-card orange as-cai-fade-in">
 				<div class="as-cai-stat-icon">
 					<i class="fas fa-clock"></i>
 				</div>
@@ -390,7 +398,7 @@ class AS_CAI_Admin {
 			</div>
 
 			<!-- System Status Card -->
-			<div class="as-cai-stat-card blue as-cai-fade-in" style="animation-delay: 0.3s;">
+			<div class="as-cai-stat-card blue as-cai-fade-in">
 				<div class="as-cai-stat-icon">
 					<i class="fas fa-heartbeat"></i>
 				</div>
@@ -405,7 +413,7 @@ class AS_CAI_Admin {
 		</div>
 
 		<!-- Quick Actions Bar -->
-		<div class="as-cai-quick-actions as-cai-fade-in" style="animation-delay: 0.4s;">
+		<div class="as-cai-quick-actions as-cai-fade-in">
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=bg-camp-availability-settings' ) ); ?>" 
 			   class="as-cai-btn as-cai-btn-primary">
 				<i class="fas fa-cog"></i>
@@ -532,127 +540,7 @@ class AS_CAI_Admin {
 			</div>
 		</div>
 
-		<style>
-		.as-cai-settings-tab {
-			color: var(--as-gray-600);
-		}
-		.as-cai-settings-tab:hover {
-			color: var(--as-primary);
-			background: var(--as-gray-100);
-		}
-		.as-cai-settings-tab-active {
-			color: var(--as-primary) !important;
-			border-bottom-color: var(--as-primary) !important;
-			background: white !important;
-		}
-		
-		/* Settings Sections */
-		.as-cai-settings-section {
-			padding: 0;
-		}
-		.as-cai-settings-row {
-			display: flex;
-			align-items: flex-start;
-			gap: 16px;
-			padding: 20px;
-			border-bottom: 1px solid var(--as-gray-200);
-		}
-		.as-cai-settings-row:last-child {
-			border-bottom: none;
-		}
-		.as-cai-settings-label {
-			flex: 1;
-		}
-		.as-cai-settings-label strong {
-			display: block;
-			color: var(--as-gray-900);
-			font-weight: 600;
-			margin-bottom: 4px;
-		}
-		.as-cai-settings-label p {
-			margin: 0;
-			color: var(--as-gray-600);
-			font-size: 0.875rem;
-		}
-		
-		/* Toggle Switch */
-		.as-cai-switch {
-			position: relative;
-			display: inline-block;
-			width: 44px;
-			height: 24px;
-			flex-shrink: 0;
-			margin-top: 3px;
-		}
-		.as-cai-switch input {
-			opacity: 0;
-			width: 0;
-			height: 0;
-		}
-		.as-cai-slider {
-			position: absolute;
-			cursor: pointer;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			background-color: var(--as-gray-300);
-			transition: .4s;
-			border-radius: 24px;
-		}
-		.as-cai-slider:before {
-			position: absolute;
-			content: "";
-			height: 18px;
-			width: 18px;
-			left: 3px;
-			bottom: 3px;
-			background-color: white;
-			transition: .4s;
-			border-radius: 50%;
-		}
-		.as-cai-switch input:checked + .as-cai-slider {
-			background-color: var(--as-primary);
-		}
-		.as-cai-switch input:checked + .as-cai-slider:before {
-			transform: translateX(20px);
-		}
-		
-		/* Form Controls */
-		.as-cai-select,
-		.as-cai-input {
-			padding: 8px 12px;
-			border: 1px solid var(--as-gray-300);
-			border-radius: 6px;
-			font-size: 14px;
-			color: var(--as-gray-900);
-			background: white;
-			transition: all 0.2s;
-		}
-		.as-cai-select:focus,
-		.as-cai-input:focus {
-			outline: none;
-			border-color: var(--as-primary);
-			box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-		}
-		.as-cai-select {
-			min-width: 200px;
-		}
-		
-		/* Info/Warning Boxes */
-		.as-cai-info-box {
-			background: rgba(59, 130, 246, 0.1);
-			border-left: 4px solid var(--as-info);
-			padding: 16px;
-			border-radius: 6px;
-		}
-		.as-cai-warning-box {
-			background: rgba(245, 158, 11, 0.1);
-			border-left: 4px solid var(--as-warning);
-			padding: 16px;
-			border-radius: 6px;
-		}
-		</style>
+		<!-- Settings styles now in as-cai-admin.css -->
 		<?php
 	}
 

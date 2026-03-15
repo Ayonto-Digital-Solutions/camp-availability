@@ -1,7 +1,7 @@
-# UPDATE v1.3.71 - Ayonto Brand Identity 2026
+# UPDATE v1.3.72 - Admin UI Modernisierung 2026
 
 **Release-Datum:** 2026-03-15
-**Update-Typ:** MINOR (UI Redesign)
+**Update-Typ:** MINOR (UI Modernisierung)
 **Priority:** 🟢 **EMPFOHLEN**
 
 ---

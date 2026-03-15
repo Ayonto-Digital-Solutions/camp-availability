@@ -7,6 +7,19 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [1.3.72] - 2026-03-15
+
+### Changed
+- **Admin UI Modernisierung 2026**
+  - Inter Font via Google Fonts CDN
+  - Toast Notifications statt `alert()` Dialoge
+  - Stat-Cards: Farbige Icons statt weiße auf farbigem Hintergrund, linker Akzentstrich
+  - Leichtere Tabellen-Header (grau statt schwarz)
+  - Staggered Fade-In Animationen via CSS
+  - Skeleton-Loading CSS für ladende Inhalte
+  - Alle inline `<style>` Blöcke in externe CSS-Datei verschoben
+  - Kompaktere Abstände und verfeinerte Schatten
+
 ## [1.3.71] - 2026-03-15
 
 ### Changed
