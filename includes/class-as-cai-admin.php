@@ -1479,16 +1479,53 @@ class AS_CAI_Admin {
 		// Use WordPress Plugin_Upgrader to install.
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+
+		$plugin_basename = defined( 'AS_CAI_PLUGIN_BASENAME' ) ? AS_CAI_PLUGIN_BASENAME : 'camp-availability-integration/as-camp-availability-integration.php';
+		$plugin_slug     = dirname( $plugin_basename );
+
+		// Add auth header for GitHub API downloads (needed for private repos and zipball URLs).
+		$auth_filter = null;
+		if ( $token ) {
+			$auth_filter = function ( $parsed_args, $url ) use ( $token ) {
+				if ( false !== strpos( $url, 'api.github.com' ) || false !== strpos( $url, 'codeload.github.com' ) ) {
+					$parsed_args['headers']['Authorization'] = 'token ' . $token;
+				}
+				return $parsed_args;
+			};
+			add_filter( 'http_request_args', $auth_filter, 10, 2 );
+		}
+
+		// Add a temporary filter to rename the extracted folder.
+		// GitHub zipballs extract to "owner-repo-hash/" which doesn't match our slug.
+		$rename_filter = function ( $response, $hook_extra, $result ) use ( $plugin_slug, $plugin_basename ) {
+			global $wp_filesystem;
+
+			$proper_destination = WP_PLUGIN_DIR . '/' . $plugin_slug;
+
+			if ( isset( $result['destination'] ) && $result['destination'] !== $proper_destination ) {
+				$wp_filesystem->move( $result['destination'], $proper_destination );
+				$result['destination'] = $proper_destination;
+			}
+
+			return $result;
+		};
+		add_filter( 'upgrader_post_install', $rename_filter, 10, 3 );
 
 		$skin     = new WP_Ajax_Upgrader_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 
 		// Deactivate plugin before upgrade.
-		$plugin_basename = defined( 'AS_CAI_PLUGIN_BASENAME' ) ? AS_CAI_PLUGIN_BASENAME : 'camp-availability-integration/as-camp-availability-integration.php';
 		deactivate_plugins( $plugin_basename );
 
 		// Install the new version.
 		$result = $upgrader->install( $download_url, array( 'overwrite_package' => true ) );
+
+		// Remove temporary filters.
+		remove_filter( 'upgrader_post_install', $rename_filter, 10 );
+		if ( $auth_filter ) {
+			remove_filter( 'http_request_args', $auth_filter, 10 );
+		}
 
 		if ( is_wp_error( $result ) ) {
 			activate_plugins( $plugin_basename );
@@ -1497,7 +1534,9 @@ class AS_CAI_Admin {
 
 		if ( ! $result ) {
 			activate_plugins( $plugin_basename );
-			wp_send_json_error( array( 'message' => __( 'Installation fehlgeschlagen', 'as-camp-availability-integration' ) ) );
+			$errors = $skin->get_errors();
+			$msg    = $errors->has_errors() ? $errors->get_error_message() : __( 'Installation fehlgeschlagen', 'as-camp-availability-integration' );
+			wp_send_json_error( array( 'message' => $msg ) );
 		}
 
 		// Reactivate plugin.

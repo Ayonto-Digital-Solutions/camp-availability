@@ -205,34 +205,122 @@
 	margin: 0;
 }
 
+/* Sortable Columns */
+.as-cai-sortable-col {
+	cursor: pointer;
+	user-select: none;
+	white-space: nowrap;
+}
+
+.as-cai-sortable-col:hover {
+	background: #eee;
+}
+
+.as-cai-sort-icon {
+	font-size: 10px;
+	color: #999;
+	margin-left: 2px;
+}
+
 /* Export Section */
 .as-cai-export {
 	margin: 30px 0;
 	text-align: right;
 }
 
-/* Print Styles */
+/* Print Styles — only show booking tables */
 @media print {
-	.as-cai-filters,
-	.as-cai-export,
-	.wp-heading-inline,
+	/* Hide entire WP admin chrome */
+	#adminmenumain,
+	#adminmenuback,
+	#adminmenuwrap,
+	#wpadminbar,
+	#wpfooter,
+	#screen-meta,
+	#screen-meta-links,
+	.update-nag,
+	.notice,
+	.updated,
+	.error,
 	#wpbody-content > .wrap > h1:first-child,
 	.page-title-action {
 		display: none !important;
 	}
 
+	/* Hide dashboard UI elements */
+	.as-cai-filters,
+	.as-cai-export,
+	.as-cai-dashboard-info,
+	.as-cai-stats,
+	.as-cai-sort-icon {
+		display: none !important;
+	}
+
+	/* Reset WP admin layout so content fills the page */
+	#wpcontent,
+	#wpbody,
+	#wpbody-content {
+		margin-left: 0 !important;
+		padding-left: 0 !important;
+	}
+
+	html, body {
+		background: #fff !important;
+	}
+
+	/* Table print optimization */
 	.as-cai-category-section {
 		page-break-inside: avoid;
-		margin-top: 20px;
+		margin: 10px 0;
+		border: 1px solid #999;
+		box-shadow: none;
+	}
+
+	.as-cai-category-title {
+		background: #eee !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
 	}
 
 	.as-cai-bookings-table {
 		font-size: 10px;
+		width: 100%;
 	}
 
 	.as-cai-bookings-table th,
 	.as-cai-bookings-table td {
-		padding: 6px;
+		padding: 4px 6px;
+		border: 1px solid #ccc;
+	}
+
+	.as-cai-bookings-table th {
+		background: #f0f0f0 !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+	/* Status badges need explicit color printing */
+	.as-cai-status {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		border: 1px solid #999;
+	}
+
+	/* Links as plain text */
+	.as-cai-bookings-table a {
+		color: #000 !important;
+		text-decoration: none !important;
+	}
+
+	/* Print header */
+	.as-cai-booking-dashboard::before {
+		content: "Buchungs-Dashboard";
+		display: block;
+		font-size: 18px;
+		font-weight: bold;
+		margin-bottom: 10px;
+		padding-bottom: 8px;
+		border-bottom: 2px solid #333;
 	}
 }
 

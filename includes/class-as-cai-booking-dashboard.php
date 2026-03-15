@@ -181,18 +181,18 @@ class AS_CAI_Booking_Dashboard {
 							<span class="as-cai-booking-count">(<?php echo count( $category_data['bookings'] ); ?> <?php esc_html_e( 'Buchungen', 'as-camp-availability-integration' ); ?>)</span>
 						</h2>
 
-						<table class="wp-list-table widefat fixed striped as-cai-bookings-table">
+						<table class="wp-list-table widefat fixed striped as-cai-bookings-table as-cai-sortable">
 							<thead>
 								<tr>
-									<th><?php esc_html_e( 'Bestellung', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Kunde', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'E-Mail', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Telefon', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Produkt', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Parzelle', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Zahlstatus', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Auftragsstatus', 'as-camp-availability-integration' ); ?></th>
-									<th><?php esc_html_e( 'Datum', 'as-camp-availability-integration' ); ?></th>
+									<th class="as-cai-sortable-col" data-sort="num"><?php esc_html_e( 'Bestellung', 'as-camp-availability-integration' ); ?> <span class="as-cai-sort-icon"></span></th>
+									<th class="as-cai-sortable-col"><?php esc_html_e( 'Kunde', 'as-camp-availability-integration' ); ?> <span class="as-cai-sort-icon"></span></th>
+									<th class="as-cai-sortable-col"><?php esc_html_e( 'E-Mail', 'as-camp-availability-integration' ); ?> <span class="as-cai-sort-icon"></span></th>
+									<th class="as-cai-sortable-col"><?php esc_html_e( 'Telefon', 'as-camp-availability-integration' ); ?> <span class="as-cai-sort-icon"></span></th>
+									<th class="as-cai-sortable-col"><?php esc_html_e( 'Produkt', 'as-camp-availability-integration' ); ?> <span class="as-cai-sort-icon"></span></th>
+									<th class="as-cai-sortable-col"><?php esc_html_e( 'Parzelle', 'as-camp-availability-integration' ); ?> <span class="as-cai-sort-icon"></span></th>
+									<th class="as-cai-sortable-col"><?php esc_html_e( 'Zahlstatus', 'as-camp-availability-integration' ); ?> <span class="as-cai-sort-icon"></span></th>
+									<th class="as-cai-sortable-col"><?php esc_html_e( 'Auftragsstatus', 'as-camp-availability-integration' ); ?> <span class="as-cai-sort-icon"></span></th>
+									<th class="as-cai-sortable-col" data-sort="date"><?php esc_html_e( 'Datum', 'as-camp-availability-integration' ); ?> <span class="as-cai-sort-icon"></span></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -258,6 +258,55 @@ class AS_CAI_Booking_Dashboard {
 				</button>
 			</div>
 		</div>
+
+		<script>
+		(function() {
+			document.querySelectorAll('.as-cai-sortable').forEach(function(table) {
+				var headers = table.querySelectorAll('.as-cai-sortable-col');
+				headers.forEach(function(th, colIndex) {
+					th.style.cursor = 'pointer';
+					th.style.userSelect = 'none';
+					th.addEventListener('click', function() {
+						var tbody = table.querySelector('tbody');
+						var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+						var sortType = th.getAttribute('data-sort') || 'text';
+						var asc = th.getAttribute('data-dir') !== 'asc';
+						th.setAttribute('data-dir', asc ? 'asc' : 'desc');
+
+						// Reset all icons in this table.
+						headers.forEach(function(h) {
+							h.querySelector('.as-cai-sort-icon').textContent = '';
+							if (h !== th) h.removeAttribute('data-dir');
+						});
+						th.querySelector('.as-cai-sort-icon').textContent = asc ? ' \u25B2' : ' \u25BC';
+
+						rows.sort(function(a, b) {
+							var cellA = a.cells[colIndex].textContent.trim();
+							var cellB = b.cells[colIndex].textContent.trim();
+
+							if (sortType === 'num') {
+								cellA = parseInt(cellA.replace(/\D/g, ''), 10) || 0;
+								cellB = parseInt(cellB.replace(/\D/g, ''), 10) || 0;
+							} else if (sortType === 'date') {
+								// Parse dd.mm.yyyy or yyyy-mm-dd.
+								cellA = cellA.split('.').reverse().join('-');
+								cellB = cellB.split('.').reverse().join('-');
+							} else {
+								cellA = cellA.toLowerCase();
+								cellB = cellB.toLowerCase();
+							}
+
+							if (cellA < cellB) return asc ? -1 : 1;
+							if (cellA > cellB) return asc ? 1 : -1;
+							return 0;
+						});
+
+						rows.forEach(function(row) { tbody.appendChild(row); });
+					});
+				});
+			});
+		})();
+		</script>
 		<?php
 	}
 
