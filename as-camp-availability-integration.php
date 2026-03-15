@@ -3,7 +3,7 @@
  * Plugin Name:       Camp Availability Integration
  * Plugin URI:        https://ayon.to
  * Description:       Integriert den Availability Scheduler Timer mit dem Stachethemes Seat Planner für Camp-Buchungen. Steuert die Anzeige des Parzellen-Auswahl-Buttons basierend auf dem Availability Timer. Inkl. 5-Minuten-Warenkorb-Reservierung und modernes Admin-Dashboard.
- * Version:           1.3.68
+ * Version:           1.3.69
  * Requires at least: 6.5
  * Requires PHP:      8.0
  * Author:            Marc Mirschel
@@ -41,7 +41,7 @@ final class AS_Camp_Availability_Integration {
      * @since 1.3.58
      * @var string
      */
-    const VERSION = '1.3.68';
+    const VERSION = '1.3.69';
 
 	/**
 	 * Plugin instance.
@@ -156,35 +156,21 @@ final class AS_Camp_Availability_Integration {
 	 */
 	public function check_dependencies() {
 		$missing_plugins = array();
-		$optional_plugins = array();
 
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			$missing_plugins[] = 'WooCommerce';
-		}
-
-		// v1.3.30: Koalaapps Scheduler is now OPTIONAL
-		// Our plugin now has its own availability system
-		if ( ! class_exists( 'Koala_Availability_Scheduler_For_Woocommerce' ) ) {
-			$optional_plugins[] = 'Product Availability Scheduler (Koalaapps) - Optional, wir haben jetzt ein eigenes System';
 		}
 
 		if ( ! class_exists( 'Stachethemes\SeatPlanner\Stachethemes_Seat_Planner' ) ) {
 			$missing_plugins[] = 'Stachethemes Seat Planner';
 		}
 
-		// Show critical error for missing required plugins
+		// Show critical error for missing required plugins.
 		if ( ! empty( $missing_plugins ) ) {
 			add_action( 'admin_notices', function() use ( $missing_plugins ) {
 				$this->display_missing_plugins_notice( $missing_plugins );
 			} );
 			return;
-		}
-
-		// Show info notice for optional plugins
-		if ( ! empty( $optional_plugins ) ) {
-			add_action( 'admin_notices', function() use ( $optional_plugins ) {
-				$this->display_optional_plugins_notice( $optional_plugins );
-			} );
 		}
 
 		// Initialize debug functionality.
@@ -252,46 +238,6 @@ final class AS_Camp_Availability_Integration {
 					'<strong>' . esc_html( implode( ', ', $missing_plugins ) ) . '</strong>'
 				);
 				?>
-			</p>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Display admin notice for optional plugins.
-	 *
-	 * @param array $optional_plugins Array of optional plugin names.
-	 * @since 1.3.30
-	 */
-	private function display_optional_plugins_notice( $optional_plugins ) {
-		// Only show once per session
-		if ( get_transient( 'as_cai_optional_plugins_notice_shown' ) ) {
-			return;
-		}
-		set_transient( 'as_cai_optional_plugins_notice_shown', true, DAY_IN_SECONDS );
-		
-		?>
-		<div class="notice notice-info is-dismissible">
-			<p>
-				<strong><?php esc_html_e( 'Camp Availability Integration - Info', 'as-camp-availability-integration' ); ?></strong>
-			</p>
-			<p>
-				<?php esc_html_e( 'Das Plugin hat jetzt ein eigenes Availability-System!', 'as-camp-availability-integration' ); ?>
-			</p>
-			<p>
-				<?php
-				printf(
-					/* translators: %s: comma-separated list of optional plugin names */
-					esc_html__( 'Folgende Plugins sind nicht mehr erforderlich: %s', 'as-camp-availability-integration' ),
-					'<em>' . esc_html( implode( ', ', $optional_plugins ) ) . '</em>'
-				);
-				?>
-			</p>
-			<p>
-				<strong><?php esc_html_e( 'Nächste Schritte:', 'as-camp-availability-integration' ); ?></strong><br>
-				<?php esc_html_e( '1. Produkte bearbeiten → Neue "Produkt-Verfügbarkeit (Camp)" Meta-Box verwenden', 'as-camp-availability-integration' ); ?><br>
-				<?php esc_html_e( '2. Start-Datum & Zeit eingeben', 'as-camp-availability-integration' ); ?><br>
-				<?php esc_html_e( '3. Fertig! Der Button wird automatisch gesteuert.', 'as-camp-availability-integration' ); ?>
 			</p>
 		</div>
 		<?php
