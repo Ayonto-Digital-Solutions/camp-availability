@@ -94,6 +94,19 @@ class AS_CAI_Admin_Reservations {
 			$taken_seats = array();
 		}
 
+		// Auch eigene Admin-Reservierungen prüfen (unabhängig von Stachethemes).
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'as_cai_admin_reservations';
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) === $table_name ) {
+			$own_reserved = $wpdb->get_col( $wpdb->prepare(
+				"SELECT seat_id FROM {$table_name} WHERE product_id = %d AND status = 'active'",
+				$product_id
+			) );
+			if ( ! empty( $own_reserved ) ) {
+				$taken_seats = array_unique( array_merge( $taken_seats, $own_reserved ) );
+			}
+		}
+
 		$seats = array();
 		foreach ( $seat_plan->objects as $obj ) {
 			if ( ! isset( $obj->type ) || 'seat' !== $obj->type || empty( $obj->seatId ) ) {
