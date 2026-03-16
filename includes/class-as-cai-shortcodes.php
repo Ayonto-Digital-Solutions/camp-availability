@@ -9,6 +9,10 @@
  * [as_cai_availability display="text"]       → Nur Text
  * [as_cai_availability display="count"]      → Nur Zahl
  *
+ * Zeigt vor Verkaufsstart automatisch einen Countdown-Timer statt der
+ * Verfügbarkeitsdaten an. Der Timer aktualisiert sich live per JavaScript
+ * und wechselt beim Ablauf automatisch zur Verfügbarkeitsanzeige.
+ *
  * @package AS_Camp_Availability_Integration
  * @since   1.3.78
  */
@@ -24,6 +28,9 @@ class AS_CAI_Shortcodes {
 
 	/** @var bool Track if CSS has been enqueued */
 	private static $css_enqueued = false;
+
+	/** @var bool Track if countdown JS has been enqueued */
+	private static $js_enqueued = false;
 
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -64,18 +71,87 @@ class AS_CAI_Shortcodes {
 			return '';
 		}
 
-		$data = AS_CAI_Status_Display::get_detailed_availability_status( $product_id );
-		if ( ! $data ) {
-			return '';
-		}
-
 		// Enqueue CSS einmalig.
 		if ( ! self::$css_enqueued ) {
 			self::enqueue_shortcode_css();
 			self::$css_enqueued = true;
 		}
 
+		// Prüfe ob der Verkauf noch nicht gestartet hat → Countdown anzeigen.
+		$countdown_html = self::maybe_render_countdown( $product_id );
+		if ( $countdown_html ) {
+			return $countdown_html;
+		}
+
+		// Verkauf hat gestartet → normale Verfügbarkeitsanzeige.
+		$data = AS_CAI_Status_Display::get_detailed_availability_status( $product_id );
+		if ( ! $data ) {
+			return '';
+		}
+
 		return self::render_output( $data, $atts['display'] );
+	}
+
+	/**
+	 * Check if product sale hasn't started and render countdown if so.
+	 *
+	 * Uses AS_CAI_Product_Availability::get_availability_data() to check
+	 * if the product has a future start date.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return string|null Countdown HTML or null if sale has started.
+	 */
+	private static function maybe_render_countdown( $product_id ) {
+		if ( ! class_exists( 'AS_CAI_Product_Availability' ) ) {
+			return null;
+		}
+
+		$availability = AS_CAI_Product_Availability::instance()->get_availability_data( $product_id );
+
+		// Kein Availability-System aktiv oder Verkauf bereits gestartet.
+		if ( ! $availability || $availability['is_available'] ) {
+			return null;
+		}
+
+		$seconds_until  = $availability['seconds_until'];
+		$start_timestamp = $availability['start_timestamp'];
+		$start_date     = $availability['start_date'];
+		$start_time     = $availability['start_time'];
+
+		// Formatierte Startzeit für Anzeige.
+		try {
+			$wp_tz    = wp_timezone();
+			$dt       = new DateTime( $start_date . ' ' . $start_time . ':00', $wp_tz );
+			$date_str = wp_date( 'd.m.Y', $dt->getTimestamp() );
+			$time_str = wp_date( 'H:i', $dt->getTimestamp() );
+		} catch ( Exception $e ) {
+			$date_str = $start_date;
+			$time_str = $start_time;
+		}
+
+		// Enqueue countdown JS einmalig.
+		if ( ! self::$js_enqueued ) {
+			self::enqueue_countdown_js();
+			self::$js_enqueued = true;
+		}
+
+		$unique_id = 'as-cai-cd-' . $product_id;
+
+		$html  = '<div class="as-cai-sc as-cai-sc-countdown" id="' . esc_attr( $unique_id ) . '"';
+		$html .= ' data-target-timestamp="' . esc_attr( $start_timestamp ) . '"';
+		$html .= ' data-product-id="' . esc_attr( $product_id ) . '">';
+		$html .= '<span class="as-cai-sc-cd-icon">⏳</span>';
+		$html .= '<span class="as-cai-sc-cd-label">Verkaufsstart in</span>';
+		$html .= '<span class="as-cai-sc-cd-timer">';
+		$html .= '<span class="cd-d" data-unit="d">--</span>T ';
+		$html .= '<span class="cd-h" data-unit="h">--</span>S ';
+		$html .= '<span class="cd-m" data-unit="m">--</span>M ';
+		$html .= '<span class="cd-s" data-unit="s">--</span>S';
+		$html .= '</span>';
+		$html .= '<span class="as-cai-sc-cd-date">' . esc_html( $date_str ) . ' um ' . esc_html( $time_str ) . ' Uhr</span>';
+		$html .= '</div>';
+
+		return $html;
 	}
 
 	/**
@@ -172,10 +248,103 @@ class AS_CAI_Shortcodes {
 			height: 100%; border-radius: 3px; transition: width 0.5s ease;
 		}
 		.as-cai-sc-bar-label { font-size: 12px; color: #6b7280; }
+
+		/* Countdown Badge */
+		.as-cai-sc-countdown {
+			display: inline-flex; align-items: center; gap: 6px;
+			padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;
+			line-height: 1.4; white-space: nowrap;
+			background: linear-gradient(135deg, #1e293b, #334155); color: #f8fafc;
+		}
+		.as-cai-sc-cd-icon { font-size: 14px; }
+		.as-cai-sc-cd-label { color: #94a3b8; font-weight: 500; font-size: 12px; }
+		.as-cai-sc-cd-timer {
+			font-variant-numeric: tabular-nums;
+			letter-spacing: 0.5px;
+			color: #B19E63;
+			font-weight: 700;
+		}
+		.as-cai-sc-cd-timer [data-unit] { min-width: 1.2em; display: inline-block; text-align: center; }
+		.as-cai-sc-cd-date { color: #64748b; font-size: 11px; font-weight: 400; }
+
+		/* Wenn Countdown abgelaufen — sanfter Übergang */
+		.as-cai-sc-countdown.expired { display: none; }
 		';
 		wp_register_style( 'as-cai-shortcode-inline', false );
 		wp_enqueue_style( 'as-cai-shortcode-inline' );
 		wp_add_inline_style( 'as-cai-shortcode-inline', $css );
+	}
+
+	/**
+	 * Enqueue the countdown JavaScript for shortcode timers.
+	 *
+	 * Lightweight inline script that:
+	 * - Finds all .as-cai-sc-countdown elements
+	 * - Calculates remaining time from data-target-timestamp
+	 * - Updates the timer every second
+	 * - On expiry: reloads the page so the availability badge appears
+	 */
+	private static function enqueue_countdown_js() {
+		$js = <<<'JS'
+(function(){
+	function initShortcodeCountdowns() {
+		var els = document.querySelectorAll('.as-cai-sc-countdown');
+		if (!els.length) return;
+
+		function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+		function tick() {
+			var now = Math.floor(Date.now() / 1000);
+			var anyActive = false;
+
+			els.forEach(function(el) {
+				if (el.classList.contains('expired')) return;
+
+				var target = parseInt(el.getAttribute('data-target-timestamp'), 10);
+				var diff = target - now;
+
+				if (diff <= 0) {
+					el.classList.add('expired');
+					// Seite neu laden damit die Verfügbarkeitsanzeige erscheint.
+					setTimeout(function() { location.reload(); }, 1500);
+					return;
+				}
+
+				anyActive = true;
+				var d = Math.floor(diff / 86400);
+				var h = Math.floor((diff % 86400) / 3600);
+				var m = Math.floor((diff % 3600) / 60);
+				var s = diff % 60;
+
+				var dEl = el.querySelector('.cd-d');
+				var hEl = el.querySelector('.cd-h');
+				var mEl = el.querySelector('.cd-m');
+				var sEl = el.querySelector('.cd-s');
+
+				if (dEl) dEl.textContent = d;
+				if (hEl) hEl.textContent = pad(h);
+				if (mEl) mEl.textContent = pad(m);
+				if (sEl) sEl.textContent = pad(s);
+			});
+
+			if (anyActive) {
+				setTimeout(tick, 1000);
+			}
+		}
+
+		tick();
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initShortcodeCountdowns);
+	} else {
+		initShortcodeCountdowns();
+	}
+})();
+JS;
+		wp_register_script( 'as-cai-sc-countdown', false, array(), AS_CAI_VERSION, true );
+		wp_enqueue_script( 'as-cai-sc-countdown' );
+		wp_add_inline_script( 'as-cai-sc-countdown', $js );
 	}
 
 	/**
