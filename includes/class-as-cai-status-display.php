@@ -57,14 +57,13 @@ class AS_CAI_Status_Display {
 
 		// Stachethemes Button-Text kontextabhängig anpassen.
 		add_filter( 'woocommerce_product_single_add_to_cart_text', array( $this, 'filter_add_to_cart_text' ), 10, 2 );
+
+		// Stachethemes i18n-Strings kontextabhängig anpassen (Parzelle → Zimmer/Bungalow).
+		add_filter( 'gettext', array( $this, 'filter_stachethemes_seat_label' ), 10, 3 );
 	}
 
 	/**
 	 * Filter: Button-Text anhand des Produktnamens anpassen.
-	 *
-	 * @param string     $text    Original button text.
-	 * @param WC_Product $product The product.
-	 * @return string
 	 */
 	public function filter_add_to_cart_text( $text, $product ) {
 		if ( ! $product ) {
@@ -72,6 +71,68 @@ class AS_CAI_Status_Display {
 		}
 		$unit_type = self::get_unit_type( $product );
 		return $unit_type['cta'];
+	}
+
+	/**
+	 * Filter: Stachethemes "Seat" Labels kontextabhängig ersetzen.
+	 *
+	 * Ersetzt die deutsche Übersetzung von "Seat" / "seats" im Stachethemes-Modal
+	 * basierend auf dem aktuellen Produktnamen (Parzelle/Zimmer/Bungalow).
+	 *
+	 * @param string $translation Translated text.
+	 * @param string $text        Original text.
+	 * @param string $domain      Text domain.
+	 * @return string
+	 */
+	public function filter_stachethemes_seat_label( $translation, $text, $domain ) {
+		if ( 'stachethemes-seat-planner' !== $domain ) {
+			return $translation;
+		}
+
+		// Nur auf Produktseiten / wenn ein Produkt geladen ist.
+		global $product;
+		if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
+			return $translation;
+		}
+
+		$unit_type = self::get_unit_type( $product );
+		$singular  = $unit_type['singular']; // z.B. "Zimmer", "Bungalow", "Parzelle"
+		$plural    = $unit_type['plural'];   // z.B. "Zimmer", "Bungalows", "Parzellen"
+
+		// Wenn es schon Parzelle ist, nichts ändern (Standard-Übersetzung).
+		if ( 'Parzelle' === $singular ) {
+			return $translation;
+		}
+
+		// Bekannte Stachethemes-Strings ersetzen.
+		$replacements = array(
+			'Seat'              => $singular,                  // "Seat" → "Zimmer"
+			'seat'              => mb_strtolower( $singular ),
+			'No seats selected' => 'Keine ' . $plural . ' ausgewählt',
+			'Seat selected'     => $singular . ' ausgewählt',
+			'Select Seat'       => $singular . ' auswählen',
+		);
+
+		// Exakter Match auf den englischen Original-String.
+		if ( isset( $replacements[ $text ] ) ) {
+			return $replacements[ $text ];
+		}
+
+		// Für Plural-Strings mit %d (z.B. "%d seats selected").
+		if ( false !== strpos( $text, 'seats selected' ) ) {
+			return str_replace( 'seats selected', $plural . ' ausgewählt', $translation );
+		}
+		if ( false !== strpos( $text, 'seat selected' ) ) {
+			return str_replace( 'seat selected', $singular . ' ausgewählt', $translation );
+		}
+		if ( false !== strpos( $text, 'seat added to cart' ) ) {
+			return str_replace( 'seat added to cart', $singular . ' in den Warenkorb gelegt', $translation );
+		}
+		if ( false !== strpos( $text, 'seats added to cart' ) ) {
+			return str_replace( 'seats added to cart', $plural . ' in den Warenkorb gelegt', $translation );
+		}
+
+		return $translation;
 	}
 
 	/**
