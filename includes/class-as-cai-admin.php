@@ -1386,11 +1386,12 @@ class AS_CAI_Admin {
 						function updateLink() {
 							var opt = sel.options[sel.selectedIndex];
 							link.href = opt.getAttribute('data-url') || '#';
-							// Disable install for current version
+							// Allow reinstall of current version — change label accordingly.
 							if (installBtn) {
 								var isCurrent = (sel.value === d.current_version);
-								installBtn.disabled = isCurrent;
-								installBtn.style.opacity = isCurrent ? '0.5' : '1';
+								installBtn.innerHTML = isCurrent
+									? '<i class="fas fa-redo"></i> <?php echo esc_js( __( 'Neu installieren', 'as-camp-availability-integration' ) ); ?>'
+									: '<i class="fas fa-download"></i> <?php echo esc_js( __( 'Installieren', 'as-camp-availability-integration' ) ); ?>';
 							}
 						}
 						sel.addEventListener('change', updateLink);
@@ -1401,9 +1402,11 @@ class AS_CAI_Admin {
 					if (installBtn) {
 						installBtn.addEventListener('click', function() {
 							var selectedVersion = sel.value;
-							if (selectedVersion === d.current_version) return;
+							var isCurrent = (selectedVersion === d.current_version);
 
-							var msg = '<?php echo esc_js( __( 'Möchten Sie Version', 'as-camp-availability-integration' ) ); ?> ' + selectedVersion + ' <?php echo esc_js( __( 'wirklich installieren? Das Plugin wird aktualisiert und neu aktiviert.', 'as-camp-availability-integration' ) ); ?>';
+							var msg = isCurrent
+								? '<?php echo esc_js( __( 'Möchten Sie Version', 'as-camp-availability-integration' ) ); ?> ' + selectedVersion + ' <?php echo esc_js( __( 'wirklich neu installieren? Das Plugin wird erneut heruntergeladen und aktiviert.', 'as-camp-availability-integration' ) ); ?>'
+								: '<?php echo esc_js( __( 'Möchten Sie Version', 'as-camp-availability-integration' ) ); ?> ' + selectedVersion + ' <?php echo esc_js( __( 'wirklich installieren? Das Plugin wird aktualisiert und neu aktiviert.', 'as-camp-availability-integration' ) ); ?>';
 							if (!confirm(msg)) return;
 
 							var statusEl = document.getElementById('as-cai-install-status');
@@ -1452,6 +1455,8 @@ class AS_CAI_Admin {
 					result.innerHTML = '<span style="color:var(--as-danger);"><i class="fas fa-exclamation-triangle"></i> <?php echo esc_js( __( 'Verbindung fehlgeschlagen', 'as-camp-availability-integration' ) ); ?></span>';
 				});
 			});
+			// Auto-load versions when page opens.
+			btn.click();
 		})();
 		</script>
 		<?php
