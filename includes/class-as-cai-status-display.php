@@ -889,7 +889,7 @@ class AS_CAI_Status_Display {
 			box-shadow: none !important;
 			padding: 0;
 			margin: 0;
-			display: flex;
+			display: flex !important;
 			flex-direction: column;
 			flex: 1;
 			animation: none !important;

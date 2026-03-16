@@ -457,6 +457,10 @@ class AS_CAI_Frontend {
 			.as-cai-status-box.as-cai-button-hidden {
 				display: none !important;
 			}
+			/* BuyBox Status-Box NIEMALS verstecken — nur der Button wird ausgeblendet */
+			.as-cai-buybox .as-cai-status-box.as-cai-button-hidden {
+				display: flex !important;
+			}
 			.stachesepl-single-add-to-cart-button-wrapper.as-cai-button-visible {
 				display: block !important;
 			}
