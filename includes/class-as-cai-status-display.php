@@ -192,7 +192,7 @@ class AS_CAI_Status_Display {
 		$this->render_status_box( $product->get_id() );
 	}
 
-	public function render_status_box( $product_id ) {
+	public function render_status_box( $product_id, $show_price = false ) {
 		$data = self::get_detailed_availability_status( $product_id );
 		if ( ! $data ) {
 			return;
@@ -205,6 +205,15 @@ class AS_CAI_Status_Display {
 		<div class="as-cai-status-box status-<?php echo esc_attr( $status ); ?>"
 			 data-product-id="<?php echo esc_attr( $product_id ); ?>"
 			 data-refresh-interval="15000">
+
+			<?php if ( $show_price ) : ?>
+				<?php $price_product = wc_get_product( $product_id ); ?>
+				<?php if ( $price_product ) : ?>
+					<div class="as-cai-status-price">
+						<?php echo wp_kses_post( $price_product->get_price_html() ); ?>
+					</div>
+				<?php endif; ?>
+			<?php endif; ?>
 
 			<div class="status-header">
 				<span class="status-icon"><?php echo esc_html( $config['icon'] ); ?></span>
@@ -254,18 +263,18 @@ class AS_CAI_Status_Display {
 					</button>
 				<?php else : ?>
 					<?php
-					$product_obj = wc_get_product( $product_id );
-					$unit_type   = $product_obj ? self::get_unit_type( $product_obj ) : array( 'cta' => 'Jetzt buchen' );
-					$cta_text    = $unit_type['cta'];
-					$cta_class   = in_array( $status, array( 'limited', 'critical' ), true ) ? ' as-cai-cta-urgent' : '';
+					// Nativen WooCommerce Add-to-Cart rendern.
+					// Stachethemes Seat Planner hookt sich in woocommerce_auditorium_add_to_cart ein.
+					global $product;
+					$original_product = $product;
+					$product          = wc_get_product( $product_id );
+					if ( $product ) {
+						echo '<div class="as-cai-add-to-cart-wrapper">';
+						do_action( 'woocommerce_' . $product->get_type() . '_add_to_cart' );
+						echo '</div>';
+					}
+					$product = $original_product;
 					?>
-					<button class="as-cai-cta-button<?php echo esc_attr( $cta_class ); ?>" type="button"
-							data-product-id="<?php echo esc_attr( $product_id ); ?>">
-						<?php if ( in_array( $status, array( 'limited', 'critical' ), true ) ) : ?>
-							<span class="pulse-dot"></span>
-						<?php endif; ?>
-						<?php echo esc_html( $cta_text ); ?>
-					</button>
 				<?php endif; ?>
 			</div>
 
@@ -381,15 +390,11 @@ class AS_CAI_Status_Display {
 
 			<!-- Rechte Spalte -->
 			<div class="as-cai-buybox-right">
-				<div class="as-cai-buybox-price">
-					<?php echo wp_kses_post( $product->get_price_html() ); ?>
-				</div>
-
 				<div class="as-cai-buybox-status">
 					<?php if ( $show_countdown ) : ?>
 						<?php $this->render_buybox_countdown( $availability, $product_id ); ?>
 					<?php else : ?>
-						<?php $this->render_status_box( $product_id ); ?>
+						<?php $this->render_status_box( $product_id, true ); ?>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -587,7 +592,7 @@ class AS_CAI_Status_Display {
 		.as-cai-buybox {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
-			gap: 32px;
+			gap: 0;
 			background: #25282B;
 			border-radius: 14px;
 			padding: 28px;
@@ -596,6 +601,11 @@ class AS_CAI_Status_Display {
 			color: #F8F8F8;
 			font-family: inherit;
 			-webkit-font-smoothing: antialiased;
+		}
+
+		.as-cai-buybox-left {
+			padding-right: 32px;
+			border-right: 1px solid rgba(177, 158, 99, 0.12);
 		}
 
 		/* Linke Spalte */
@@ -666,19 +676,23 @@ class AS_CAI_Status_Display {
 		.as-cai-buybox-right {
 			display: flex;
 			flex-direction: column;
-			gap: 20px;
+			padding-left: 32px;
 		}
 
-		.as-cai-buybox-price {
-			font-size: 28px;
+		/* Preis innerhalb Status-Box */
+		.as-cai-status-price {
+			font-size: 24px;
 			font-weight: 700;
 			color: #B19E63;
+			margin-bottom: 16px;
+			padding-bottom: 16px;
+			border-bottom: 1px solid rgba(177, 158, 99, 0.12);
 		}
-		.as-cai-buybox-price del {
+		.as-cai-status-price del {
 			color: rgba(248, 248, 248, 0.4);
 			font-weight: 400;
 		}
-		.as-cai-buybox-price ins {
+		.as-cai-status-price ins {
 			text-decoration: none;
 		}
 
@@ -691,6 +705,18 @@ class AS_CAI_Status_Display {
 			padding: 16px 0 16px 16px;
 			margin: 0;
 			border-left: 3px solid;
+		}
+
+		/* Nativer WooCommerce / Stachethemes Add-to-Cart Button */
+		.as-cai-buybox .as-cai-add-to-cart-wrapper {
+			margin-top: 4px;
+		}
+		.as-cai-buybox .stachesepl-add-to-cart-button-wrapper {
+			margin: 0;
+			padding: 0;
+		}
+		.as-cai-buybox .stachesepl-select-seats-button {
+			width: 100%;
 		}
 
 		/* ── BuyBox Countdown — Prominent ── */
@@ -765,13 +791,22 @@ class AS_CAI_Status_Display {
 			.as-cai-buybox {
 				grid-template-columns: 1fr;
 				padding: 20px;
-				gap: 20px;
+			}
+			.as-cai-buybox-left {
+				padding-right: 0;
+				border-right: none;
+				padding-bottom: 20px;
+				border-bottom: 1px solid rgba(177, 158, 99, 0.12);
+				margin-bottom: 20px;
+			}
+			.as-cai-buybox-right {
+				padding-left: 0;
 			}
 			.as-cai-buybox-title {
 				font-size: 20px;
 			}
-			.as-cai-buybox-price {
-				font-size: 24px;
+			.as-cai-status-price {
+				font-size: 20px;
 			}
 			.as-cai-buybox-cd-value {
 				font-size: 28px;

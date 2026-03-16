@@ -33,15 +33,6 @@
 			self.showNotifyPrompt(productId);
 		});
 
-		// CTA-Button: Click the standard WooCommerce "Add to Cart" button.
-		// Stachethemes Seat Planner hooks into this and opens its modal automatically.
-		$(document).on('click', '.as-cai-cta-button', function (e) {
-			e.preventDefault();
-			var $addToCart = $('.single_add_to_cart_button');
-			if ($addToCart.length) {
-				$addToCart[0].click();
-			}
-		});
 	};
 
 	StatusLiveUpdate.prototype.startAutoRefresh = function ($box) {
