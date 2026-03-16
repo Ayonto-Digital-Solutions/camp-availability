@@ -187,22 +187,31 @@ class AS_CAI_Status_Display {
 					</div>
 				</div>
 
-				<?php if ( in_array( $status, array( 'limited', 'critical' ), true ) ) : ?>
-					<div class="urgency-badge">
-						<span class="pulse-dot"></span>
-						<strong><?php echo esc_html( $config['urgency_text'] ); ?></strong>
-					</div>
-				<?php endif; ?>
-			</div>
+				</div>
 
-			<?php if ( 'sold_out' === $status || 'reserved_full' === $status ) : ?>
-				<div class="status-action">
+			<div class="status-action">
+				<?php if ( 'sold_out' === $status || 'reserved_full' === $status ) : ?>
 					<button class="as-cai-waitlist-button" type="button"
 							data-product-id="<?php echo esc_attr( $product_id ); ?>">
 						Auf Warteliste setzen
 					</button>
-				</div>
-			<?php endif; ?>
+				<?php else : ?>
+					<?php
+					$product_obj   = wc_get_product( $product_id );
+					$is_auditorium = $product_obj && 'auditorium' === $product_obj->get_type();
+					$cta_text      = $is_auditorium ? 'Jetzt Parzelle auswählen' : 'Jetzt buchen';
+					$cta_class     = in_array( $status, array( 'limited', 'critical' ), true ) ? ' as-cai-cta-urgent' : '';
+					?>
+					<button class="as-cai-cta-button<?php echo esc_attr( $cta_class ); ?>" type="button"
+							data-product-id="<?php echo esc_attr( $product_id ); ?>"
+							data-product-type="<?php echo esc_attr( $is_auditorium ? 'auditorium' : 'simple' ); ?>">
+						<?php if ( in_array( $status, array( 'limited', 'critical' ), true ) ) : ?>
+							<span class="pulse-dot"></span>
+						<?php endif; ?>
+						<?php echo esc_html( $cta_text ); ?>
+					</button>
+				<?php endif; ?>
+			</div>
 
 			<div class="status-meta">
 				<small>

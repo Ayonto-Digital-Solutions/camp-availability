@@ -32,6 +32,23 @@
 			var productId = $(this).data('product-id') || $(this).closest('.as-cai-status-box').data('product-id');
 			self.showNotifyPrompt(productId);
 		});
+
+		// CTA-Button: Scroll to seat map (auditorium) or add-to-cart (simple).
+		$(document).on('click', '.as-cai-cta-button', function (e) {
+			e.preventDefault();
+			var type = $(this).data('product-type');
+			if (type === 'auditorium') {
+				var $seatMap = $('.stachesepl-seat-planner-wrap, .stachesepl-add-to-cart-button-root');
+				if ($seatMap.length) {
+					$('html, body').animate({ scrollTop: $seatMap.first().offset().top - 80 }, 600);
+				}
+			} else {
+				var $form = $('form.cart');
+				if ($form.length) {
+					$form.find('.single_add_to_cart_button').trigger('click');
+				}
+			}
+		});
 	};
 
 	StatusLiveUpdate.prototype.startAutoRefresh = function ($box) {
@@ -73,9 +90,10 @@
 	StatusLiveUpdate.prototype.updateStatusBox = function ($box, data) {
 		var self = this;
 
-		// Update numbers.
+		// Update numbers (label comes from server).
+		var label = data.label || 'Parzellen';
 		$box.find('.availability-main strong').text(
-			data.available + ' von ' + data.total + ' Parzellen'
+			data.available + ' von ' + data.total + ' ' + label
 		);
 
 		// Update progress bar.

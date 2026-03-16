@@ -99,6 +99,26 @@ class AS_CAI_Admin {
 			array( $this, 'render_admin_page' )
 		);
 
+		// Admin Reservations (v1.3.78).
+		add_submenu_page(
+			'bg-camp-availability',
+			__( 'Reservierung anlegen', 'as-camp-availability-integration' ),
+			__( 'Reservierung anlegen', 'as-camp-availability-integration' ),
+			'manage_woocommerce',
+			'bg-camp-availability-admin-reservations',
+			array( $this, 'render_admin_page' )
+		);
+
+		// Shortcode Builder (v1.3.78).
+		add_submenu_page(
+			'bg-camp-availability',
+			__( 'Shortcode Builder', 'as-camp-availability-integration' ),
+			__( 'Shortcode Builder', 'as-camp-availability-integration' ),
+			'manage_woocommerce',
+			'bg-camp-availability-shortcode-builder',
+			array( $this, 'render_admin_page' )
+		);
+
 		// Test Suite submenu (v1.3.14).
 		add_submenu_page(
 			'bg-camp-availability',
@@ -249,11 +269,13 @@ class AS_CAI_Admin {
 
 		// Determine which tab to show.
 		$tab_map = array(
-			'bg-camp-availability'              => 'dashboard',
-			'bg-camp-availability-settings'     => 'settings',
-			'bg-camp-availability-reservations' => 'reservations',
-			'bg-camp-availability-tests'        => 'tests',
-			'bg-camp-availability-docs'         => 'docs',
+			'bg-camp-availability'                     => 'dashboard',
+			'bg-camp-availability-settings'            => 'settings',
+			'bg-camp-availability-reservations'        => 'reservations',
+			'bg-camp-availability-admin-reservations'  => 'admin_reservations',
+			'bg-camp-availability-shortcode-builder'   => 'shortcode_builder',
+			'bg-camp-availability-tests'               => 'tests',
+			'bg-camp-availability-docs'                => 'docs',
 		);
 
 		$this->active_tab = isset( $tab_map[ $page ] ) ? $tab_map[ $page ] : 'dashboard';
@@ -273,6 +295,12 @@ class AS_CAI_Admin {
 						break;
 					case 'reservations':
 						$this->render_reservations();
+						break;
+					case 'admin_reservations':
+						AS_CAI_Admin_Reservations::render_page();
+						break;
+					case 'shortcode_builder':
+						$this->render_shortcode_builder();
 						break;
 					case 'tests':
 						AS_CAI_Test_Suite::instance()->render_page();
@@ -860,6 +888,146 @@ class AS_CAI_Admin {
 	/**
 	 * Render Debug tab.
 	 */
+	/**
+	 * Render Shortcode Builder (v1.3.78).
+	 */
+	private function render_shortcode_builder() {
+		$nonce = wp_create_nonce( 'as_cai_shortcode_builder' );
+
+		// Alle unterstützten Produkte.
+		$auditorium_products = wc_get_products( array( 'type' => 'auditorium', 'limit' => 50, 'status' => 'publish' ) );
+		$simple_products = array_filter(
+			wc_get_products( array( 'type' => 'simple', 'limit' => 50, 'status' => 'publish' ) ),
+			function( $p ) { return $p->managing_stock(); }
+		);
+		?>
+		<div class="as-cai-card as-cai-fade-in">
+			<div class="as-cai-card-header">
+				<h2 class="as-cai-card-title">
+					<i class="fas fa-code"></i>
+					Shortcode Builder
+				</h2>
+			</div>
+			<div class="as-cai-card-body">
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+					<!-- Linke Seite: Einstellungen -->
+					<div>
+						<h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Einstellungen</h3>
+
+						<div style="margin-bottom: 14px;">
+							<label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Produkt</label>
+							<select id="sc-product" style="width: 100%; padding: 8px 12px; border: 1px solid var(--as-gray-300, #ddd); border-radius: 6px; font-size: 14px;">
+								<option value="">Aktuelles Produkt (Loop-Kontext)</option>
+								<?php if ( ! empty( $auditorium_products ) ) : ?>
+									<optgroup label="Auditorium (Parzellen)">
+										<?php foreach ( $auditorium_products as $p ) : ?>
+											<option value="<?php echo esc_attr( $p->get_id() ); ?>"><?php echo esc_html( $p->get_name() ); ?></option>
+										<?php endforeach; ?>
+									</optgroup>
+								<?php endif; ?>
+								<?php if ( ! empty( $simple_products ) ) : ?>
+									<optgroup label="Einfache Produkte">
+										<?php foreach ( $simple_products as $p ) : ?>
+											<option value="<?php echo esc_attr( $p->get_id() ); ?>"><?php echo esc_html( $p->get_name() ); ?></option>
+										<?php endforeach; ?>
+									</optgroup>
+								<?php endif; ?>
+							</select>
+						</div>
+
+						<div style="margin-bottom: 14px;">
+							<label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px;">Display-Modus</label>
+							<select id="sc-display" style="width: 100%; padding: 8px 12px; border: 1px solid var(--as-gray-300, #ddd); border-radius: 6px; font-size: 14px;">
+								<option value="badge">Badge — Farbiger Chip mit Icon</option>
+								<option value="bar">Bar — Mini-Progress-Bar</option>
+								<option value="text">Text — Einfacher Text</option>
+								<option value="count">Count — Nur die Zahl</option>
+							</select>
+						</div>
+
+						<div style="margin-top: 20px; padding: 12px; background: #1e1e2e; border-radius: 8px;">
+							<label style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 12px; color: #89b4fa;">Generierter Shortcode</label>
+							<code id="sc-output" style="display: block; padding: 10px; background: #313244; color: #cdd6f4; border-radius: 6px; font-size: 14px; word-break: break-all;">[as_cai_availability]</code>
+							<button id="sc-copy" class="as-cai-btn" style="margin-top: 8px; font-size: 13px; padding: 6px 14px; background: #89b4fa; color: #1e1e2e; border: none; border-radius: 6px; cursor: pointer;">
+								<i class="fas fa-copy"></i> Kopieren
+							</button>
+						</div>
+					</div>
+
+					<!-- Rechte Seite: Live-Vorschau -->
+					<div>
+						<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+							<h3 style="margin: 0; font-size: 16px; font-weight: 600;">Live-Vorschau</h3>
+							<div>
+								<button id="sc-bg-light" class="as-cai-btn" style="font-size: 11px; padding: 4px 10px; border: 1px solid var(--as-gray-300, #ddd); background: #fff; color: #333; border-radius: 4px; cursor: pointer;">Hell</button>
+								<button id="sc-bg-dark" class="as-cai-btn" style="font-size: 11px; padding: 4px 10px; border: 1px solid var(--as-gray-300, #ddd); background: #25282B; color: #F8F8F8; border-radius: 4px; cursor: pointer;">Dunkel</button>
+							</div>
+						</div>
+						<div id="sc-preview-container" style="min-height: 80px; padding: 24px; border: 2px dashed var(--as-gray-300, #ddd); border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+							<div id="sc-preview" style="text-align: center;">
+								<span style="color: var(--as-gray-400, #bbb); font-size: 14px;">Produkt auswählen für Vorschau</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+		jQuery(document).ready(function($) {
+			var scNonce = '<?php echo esc_js( $nonce ); ?>';
+
+			function updateShortcode() {
+				var productId = $('#sc-product').val();
+				var display = $('#sc-display').val();
+				var sc = '[as_cai_availability';
+				if (productId) sc += ' product_id="' + productId + '"';
+				if (display !== 'badge') sc += ' display="' + display + '"';
+				sc += ']';
+				$('#sc-output').text(sc);
+			}
+
+			function loadPreview() {
+				var productId = $('#sc-product').val();
+				var display = $('#sc-display').val();
+
+				if (!productId) {
+					$('#sc-preview').html('<span style="color:#bbb;font-size:14px;">Produkt auswählen für Vorschau</span>');
+					return;
+				}
+
+				$('#sc-preview').html('<i class="fas fa-spinner fa-spin" style="font-size:20px;color:var(--as-primary);"></i>');
+
+				$.post(ajaxurl, {
+					action: 'as_cai_shortcode_preview',
+					product_id: productId,
+					display: display,
+					nonce: scNonce
+				}, function(r) {
+					if (r.success) {
+						$('#sc-preview').html(r.data.html);
+					} else {
+						$('#sc-preview').html('<span style="color:#ef4444;">Keine Daten: ' + (r.data || '') + '</span>');
+					}
+				});
+			}
+
+			$('#sc-product, #sc-display').on('change', function() { updateShortcode(); loadPreview(); });
+
+			$('#sc-copy').on('click', function() {
+				var text = $('#sc-output').text();
+				navigator.clipboard.writeText(text).then(function() {
+					if (typeof asCaiToast !== 'undefined') asCaiToast.show('Shortcode kopiert!', 'success');
+				});
+			});
+
+			$('#sc-bg-light').on('click', function() { $('#sc-preview-container').css({ background: '#fff', color: '#333' }); });
+			$('#sc-bg-dark').on('click', function() { $('#sc-preview-container').css({ background: '#25282B', color: '#F8F8F8' }); });
+		});
+		</script>
+		<?php
+	}
+
 	/**
 	 * Render Documentation tab (v1.3.23 - Modern Card Design with Latest Update).
 	 */

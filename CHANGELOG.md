@@ -7,6 +7,48 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [1.3.78] - 2026-03-16
+
+### Added
+- **CTA-Button in Status-Display-Box**
+  - "Jetzt Parzelle auswählen" (Auditorium) / "Jetzt buchen" (Simple) direkt in der Box
+  - Ersetzt den externen Stachethemes "Parzelle auswählen"-Button komplett
+  - Smooth-Scroll zur Seat-Map bei Auditorium-Produkten
+  - WC Add-to-Cart Trigger bei Simple-Produkten
+  - Urgency-Puls-Animation bei kritischem Status
+  - Sold-Out/Reserved-Full: "Auf Warteliste setzen"-Button mit Modal
+
+- **Verfügbarkeits-Shortcode `[as_cai_availability]`**
+  - 4 Display-Modi: `badge` (Standard), `bar`, `text`, `count`
+  - Attribute: `product_id`, `display`
+  - Automatische Produkt-Erkennung im Loop-Kontext (Elementor, WC)
+  - Farbcodierte Status-Badges (verfügbar/begrenzt/kritisch/ausgebucht)
+  - Responsive für Shop-Karten und Loop-Elemente
+
+- **Admin Shortcode Builder**
+  - Neue Unterseite "Shortcode Builder" im Plugin-Menü
+  - Live-Vorschau per AJAX bei jeder Einstellungsänderung
+  - Produkt-Dropdown, Display-Modus-Auswahl
+  - Hintergrund-Toggle (hell/dunkel) für Theme-Test
+  - Copy-to-Clipboard für generierten Shortcode
+
+- **Admin-Reservierungsverwaltung**
+  - Neue Unterseite "Reservierung anlegen" im Plugin-Menü
+  - Seat-Grid mit Farbcodierung (verfügbar/verkauft/reserviert)
+  - Nutzt Stachethemes `add_meta_taken_seat()` / `delete_meta_taken_seat()`
+  - Eigene DB-Tabelle `wp_as_cai_admin_reservations`
+  - Kundendaten (Name, E-Mail) und Freitext-Grund
+  - Aktive Reservierungen mit Freigabe-Button
+  - Reine Plugin-Reservierung ohne WC-Order
+
+- **Neue WordPress-Rolle "Camp Manager"**
+  - Zugriff auf WooCommerce, Stachethemes Seat Planner und Plugin-Admin
+  - Capabilities: `manage_woocommerce` + alle WC Shop-Manager Caps
+  - Zugriff auf `bg-camp-availability` und `as-cai-booking-dashboard`
+  - Auto-Installation bei Plugin-Aktivierung und Version-Upgrade
+
+---
+
 ## [1.3.77] - 2026-03-15
 
 ### Rebuilt

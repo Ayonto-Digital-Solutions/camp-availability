@@ -1,6 +1,6 @@
 # Camp Availability Integration
 
-**Version:** 1.3.77  
+**Version:** 1.3.78  
 **Author:** Marc Mirschel  
 **Author URI:** https://marc.mirschel.biz  
 **Plugin URI:** https://ayon.to
@@ -241,11 +241,12 @@ Für Support und Fragen:
 
 Siehe **CHANGELOG.md** für die vollständige Versionshistorie oder besuchen Sie **Documentation → Latest Update (UPDATE.md)** im Admin-Bereich für die neuesten Änderungen.
 
-### Aktuelle Version: 1.3.77
-- Koalaapps "Product Availability Scheduler" ist nicht mehr erforderlich
-- Eigenes Availability-System mit Hook-Priority 5
-- Optimierte Abhängigkeiten
-- Aktualisierte Dokumentation
+### Aktuelle Version: 1.3.78
+- CTA-Button direkt in der Status-Display-Box (ersetzt externen Stachethemes-Button)
+- Neuer Shortcode `[as_cai_availability]` mit 4 Display-Modi für Elementor Loop
+- Admin Shortcode Builder mit Live-Vorschau
+- Admin-Reservierungsverwaltung (Parzellen direkt im Plugin reservieren/freigeben)
+- Neue WordPress-Rolle "Camp Manager" für Camp-Mitarbeiter
 
 ## Lizenz
 
