@@ -27,6 +27,9 @@ class AS_CAI_Status_Display {
 	/** @var array Unterstützte Produkttypen */
 	private static $supported_types = array( 'auditorium', 'simple' );
 
+	/** @var bool Ob der BuyBox-Shortcode bereits gerendert wurde */
+	private static $buybox_rendered = false;
+
 	public static function instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -39,6 +42,7 @@ class AS_CAI_Status_Display {
 	}
 
 	private function init_hooks() {
+		add_shortcode( 'as_cai_buybox', array( $this, 'shortcode_buybox' ) );
 		add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'maybe_render_status_box' ), 4 );
 		add_action( 'wp_ajax_as_cai_get_status', array( $this, 'ajax_get_status' ) );
 		add_action( 'wp_ajax_nopriv_as_cai_get_status', array( $this, 'ajax_get_status' ) );
@@ -113,6 +117,11 @@ class AS_CAI_Status_Display {
 	// ─────────────────────────────────────────────
 
 	public function maybe_render_status_box() {
+		// BuyBox-Shortcode hat bereits gerendert → kein Doppel.
+		if ( self::$buybox_rendered ) {
+			return;
+		}
+
 		if ( ! is_product() ) {
 			return;
 		}
@@ -221,6 +230,517 @@ class AS_CAI_Status_Display {
 			</div>
 		</div>
 		<?php
+	}
+
+	// ─────────────────────────────────────────────
+	// BuyBox Shortcode
+	// ─────────────────────────────────────────────
+
+	/**
+	 * Shortcode [as_cai_buybox] — Komplette BuyBox mit Zwei-Spalten-Layout.
+	 *
+	 * Links: Titel, Breadcrumbs, Beschreibung, Kategorie
+	 * Rechts: Preis, Status-Box oder Countdown
+	 *
+	 * @param array $atts Shortcode attributes.
+	 * @return string HTML output.
+	 */
+	public function shortcode_buybox( $atts ) {
+		$atts = shortcode_atts( array(
+			'product_id' => 0,
+		), $atts, 'as_cai_buybox' );
+
+		$product_id = absint( $atts['product_id'] );
+
+		if ( ! $product_id ) {
+			global $product;
+			if ( $product && is_object( $product ) && method_exists( $product, 'get_id' ) ) {
+				$product_id = $product->get_id();
+			} elseif ( get_the_ID() ) {
+				$product_id = get_the_ID();
+			}
+		}
+
+		if ( ! $product_id ) {
+			return '';
+		}
+
+		$product_obj = wc_get_product( $product_id );
+		if ( ! $product_obj ) {
+			return '';
+		}
+
+		// Assets laden (ohne is_product() Check).
+		$this->force_enqueue_assets();
+
+		// Flag setzen — Hook-Injektion überspringen.
+		self::$buybox_rendered = true;
+
+		ob_start();
+		$this->render_buybox( $product_obj );
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render the complete BuyBox.
+	 *
+	 * @param WC_Product $product Product object.
+	 */
+	private function render_buybox( $product ) {
+		$product_id = $product->get_id();
+
+		// Breadcrumbs vorbereiten.
+		$breadcrumbs = $this->get_buybox_breadcrumbs( $product );
+
+		// Kategorie.
+		$categories = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'all' ) );
+		$category_html = '';
+		if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
+			$cat = $categories[0];
+			$category_html = '<a href="' . esc_url( get_term_link( $cat ) ) . '">' . esc_html( $cat->name ) . '</a>';
+		}
+
+		// Availability prüfen.
+		$availability = null;
+		if ( class_exists( 'AS_CAI_Product_Availability' ) ) {
+			$availability = AS_CAI_Product_Availability::instance()->get_availability_data( $product_id );
+		}
+		$show_countdown = $availability && ! $availability['is_available'];
+
+		// BuyBox CSS inline enqueuen.
+		$this->enqueue_buybox_css();
+		?>
+		<div class="as-cai-buybox">
+			<!-- Linke Spalte -->
+			<div class="as-cai-buybox-left">
+				<h1 class="as-cai-buybox-title"><?php echo esc_html( $product->get_name() ); ?></h1>
+
+				<?php if ( $breadcrumbs ) : ?>
+					<div class="as-cai-buybox-breadcrumbs">
+						<?php echo wp_kses_post( $breadcrumbs ); ?>
+					</div>
+				<?php endif; ?>
+
+				<div class="as-cai-buybox-description">
+					<?php echo wp_kses_post( wpautop( $product->get_description() ) ); ?>
+				</div>
+
+				<?php if ( $category_html ) : ?>
+					<div class="as-cai-buybox-category">
+						<strong>Event</strong> <?php echo wp_kses_post( $category_html ); ?>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<!-- Rechte Spalte -->
+			<div class="as-cai-buybox-right">
+				<div class="as-cai-buybox-price">
+					<?php echo wp_kses_post( $product->get_price_html() ); ?>
+				</div>
+
+				<div class="as-cai-buybox-status">
+					<?php if ( $show_countdown ) : ?>
+						<?php $this->render_buybox_countdown( $availability, $product_id ); ?>
+					<?php else : ?>
+						<?php $this->render_status_box( $product_id ); ?>
+					<?php endif; ?>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render countdown timer for BuyBox (prominent, product page style).
+	 *
+	 * @param array $availability Availability data.
+	 * @param int   $product_id   Product ID.
+	 */
+	private function render_buybox_countdown( $availability, $product_id ) {
+		$start_timestamp = $availability['start_timestamp'];
+		$start_date      = $availability['start_date'];
+		$start_time      = $availability['start_time'];
+
+		// Formatierte Startzeit.
+		try {
+			$wp_tz    = wp_timezone();
+			$dt       = new DateTime( $start_date . ' ' . $start_time . ':00', $wp_tz );
+			$date_str = wp_date( 'd.m.Y', $dt->getTimestamp() );
+			$time_str = wp_date( 'H:i', $dt->getTimestamp() );
+		} catch ( Exception $e ) {
+			$date_str = $start_date;
+			$time_str = $start_time;
+		}
+
+		// Template-Builder Settings laden.
+		$text_before  = get_option( 'as_cai_sc_cd_text_before', 'Verkaufsstart in' );
+		$text_after   = get_option( 'as_cai_sc_cd_text_after', '{date} um {time} Uhr' );
+		$show_days    = get_option( 'as_cai_sc_cd_show_days', 'yes' ) === 'yes';
+		$show_hours   = get_option( 'as_cai_sc_cd_show_hours', 'yes' ) === 'yes';
+		$show_minutes = get_option( 'as_cai_sc_cd_show_minutes', 'yes' ) === 'yes';
+		$show_seconds = get_option( 'as_cai_sc_cd_show_seconds', 'no' ) === 'yes';
+
+		$after_text = str_replace(
+			array( '{date}', '{time}' ),
+			array( $date_str, $time_str ),
+			$text_after
+		);
+
+		$unique_id = 'as-cai-buybox-cd-' . $product_id;
+		?>
+		<div class="as-cai-buybox-countdown" id="<?php echo esc_attr( $unique_id ); ?>"
+			 data-target-timestamp="<?php echo esc_attr( $start_timestamp ); ?>"
+			 data-product-id="<?php echo esc_attr( $product_id ); ?>">
+
+			<?php if ( '' !== $text_before ) : ?>
+				<div class="as-cai-buybox-cd-label">
+					<?php echo esc_html( strtoupper( $text_before ) ); ?>
+				</div>
+			<?php endif; ?>
+
+			<div class="as-cai-buybox-cd-timer">
+				<?php if ( $show_days ) : ?>
+					<div class="as-cai-buybox-cd-unit">
+						<span class="as-cai-buybox-cd-value cd-d" data-unit="d">0</span>
+						<span class="as-cai-buybox-cd-unit-label">TAGE</span>
+					</div>
+					<span class="as-cai-buybox-cd-sep">:</span>
+				<?php endif; ?>
+				<?php if ( $show_hours ) : ?>
+					<div class="as-cai-buybox-cd-unit">
+						<span class="as-cai-buybox-cd-value cd-h" data-unit="h">0</span>
+						<span class="as-cai-buybox-cd-unit-label">STD</span>
+					</div>
+					<span class="as-cai-buybox-cd-sep">:</span>
+				<?php endif; ?>
+				<?php if ( $show_minutes ) : ?>
+					<div class="as-cai-buybox-cd-unit">
+						<span class="as-cai-buybox-cd-value cd-m" data-unit="m">0</span>
+						<span class="as-cai-buybox-cd-unit-label">MIN</span>
+					</div>
+					<?php if ( $show_seconds ) : ?>
+						<span class="as-cai-buybox-cd-sep">:</span>
+					<?php endif; ?>
+				<?php endif; ?>
+				<?php if ( $show_seconds ) : ?>
+					<div class="as-cai-buybox-cd-unit">
+						<span class="as-cai-buybox-cd-value cd-s" data-unit="s">0</span>
+						<span class="as-cai-buybox-cd-unit-label">SEK</span>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<?php if ( '' !== $after_text ) : ?>
+				<div class="as-cai-buybox-cd-after">
+					<?php echo esc_html( $after_text ); ?>
+				</div>
+			<?php endif; ?>
+		</div>
+
+		<script>
+		(function(){
+			var el = document.getElementById('<?php echo esc_js( $unique_id ); ?>');
+			if (!el) return;
+			function pad(n) { return n < 10 ? '0' + n : '' + n; }
+			function tick() {
+				var now = Math.floor(Date.now() / 1000);
+				var target = parseInt(el.getAttribute('data-target-timestamp'), 10);
+				var diff = target - now;
+				if (diff <= 0) {
+					setTimeout(function() { location.reload(); }, 1500);
+					return;
+				}
+				var d = Math.floor(diff / 86400);
+				var h = Math.floor((diff % 86400) / 3600);
+				var m = Math.floor((diff % 3600) / 60);
+				var s = diff % 60;
+				<?php if ( ! $show_days ) : ?>h += d * 24; d = 0;<?php endif; ?>
+				<?php if ( ! $show_hours ) : ?>m += h * 60; h = 0;<?php endif; ?>
+				<?php if ( ! $show_minutes ) : ?>s += m * 60; m = 0;<?php endif; ?>
+				var dEl = el.querySelector('.cd-d');
+				var hEl = el.querySelector('.cd-h');
+				var mEl = el.querySelector('.cd-m');
+				var sEl = el.querySelector('.cd-s');
+				if (dEl) dEl.textContent = d;
+				if (hEl) hEl.textContent = pad(h);
+				if (mEl) mEl.textContent = pad(m);
+				if (sEl) sEl.textContent = pad(s);
+				setTimeout(tick, <?php echo $show_seconds ? '1000' : '10000'; ?>);
+			}
+			tick();
+		})();
+		</script>
+		<?php
+	}
+
+	/**
+	 * Generate breadcrumb HTML for BuyBox.
+	 *
+	 * @param WC_Product $product Product object.
+	 * @return string HTML breadcrumbs.
+	 */
+	private function get_buybox_breadcrumbs( $product ) {
+		$parts = array();
+
+		$parts[] = '<a href="' . esc_url( home_url( '/' ) ) . '">Start</a>';
+
+		// Produktkategorie als Zwischenschritt.
+		$categories = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'all' ) );
+		if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
+			$cat = $categories[0];
+			$parts[] = '<a href="' . esc_url( get_term_link( $cat ) ) . '">' . esc_html( $cat->name ) . '</a>';
+		}
+
+		$parts[] = esc_html( $product->get_name() );
+
+		return implode( ' <span class="as-cai-buybox-bc-sep">/</span> ', $parts );
+	}
+
+	/**
+	 * Force-enqueue assets without is_product() check (for shortcode usage).
+	 */
+	private function force_enqueue_assets() {
+		wp_enqueue_style(
+			'as-cai-status-display',
+			AS_CAI_PLUGIN_URL . 'assets/css/as-cai-status-display.css',
+			array(),
+			AS_CAI_VERSION
+		);
+
+		wp_enqueue_script(
+			'as-cai-status-live-update',
+			AS_CAI_PLUGIN_URL . 'assets/js/as-cai-status-live-update.js',
+			array( 'jquery' ),
+			AS_CAI_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'as-cai-status-live-update',
+			'as_cai_vars',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'as_cai_status_nonce' ),
+			)
+		);
+	}
+
+	/**
+	 * Enqueue BuyBox-specific CSS (inline).
+	 */
+	private function enqueue_buybox_css() {
+		static $enqueued = false;
+		if ( $enqueued ) {
+			return;
+		}
+		$enqueued = true;
+
+		$css = '
+		/* ── BuyBox — Zwei-Spalten-Layout ── */
+		.as-cai-buybox {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 32px;
+			background: #25282B;
+			border-radius: 14px;
+			padding: 28px;
+			border: 1px solid rgba(177, 158, 99, 0.15);
+			box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+			color: #F8F8F8;
+			font-family: inherit;
+			-webkit-font-smoothing: antialiased;
+		}
+
+		/* Linke Spalte */
+		.as-cai-buybox-title {
+			font-size: 24px;
+			font-weight: 700;
+			color: #F8F8F8;
+			margin: 0 0 8px 0;
+			letter-spacing: -0.02em;
+		}
+
+		.as-cai-buybox-breadcrumbs {
+			font-size: 13px;
+			color: rgba(248, 248, 248, 0.5);
+			margin-bottom: 20px;
+		}
+		.as-cai-buybox-breadcrumbs a {
+			color: #B19E63;
+			text-decoration: none;
+			transition: color 0.15s;
+		}
+		.as-cai-buybox-breadcrumbs a:hover {
+			color: #d4c07a;
+		}
+		.as-cai-buybox-bc-sep {
+			margin: 0 6px;
+			color: rgba(248, 248, 248, 0.3);
+		}
+
+		.as-cai-buybox-description {
+			font-size: 14px;
+			color: rgba(248, 248, 248, 0.75);
+			line-height: 1.7;
+		}
+		.as-cai-buybox-description p {
+			margin: 0 0 12px 0;
+		}
+		.as-cai-buybox-description strong {
+			color: #B19E63;
+			font-weight: 700;
+		}
+		.as-cai-buybox-description ul {
+			padding-left: 18px;
+			margin: 8px 0;
+		}
+		.as-cai-buybox-description li {
+			margin-bottom: 4px;
+		}
+
+		.as-cai-buybox-category {
+			margin-top: 16px;
+			padding-top: 16px;
+			border-top: 1px solid rgba(255, 255, 255, 0.08);
+			font-size: 14px;
+			color: rgba(248, 248, 248, 0.6);
+		}
+		.as-cai-buybox-category strong {
+			color: rgba(248, 248, 248, 0.5);
+			font-weight: 400;
+			margin-right: 4px;
+		}
+		.as-cai-buybox-category a {
+			color: #B19E63;
+			text-decoration: none;
+		}
+
+		/* Rechte Spalte */
+		.as-cai-buybox-right {
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
+
+		.as-cai-buybox-price {
+			font-size: 28px;
+			font-weight: 700;
+			color: #B19E63;
+		}
+		.as-cai-buybox-price del {
+			color: rgba(248, 248, 248, 0.4);
+			font-weight: 400;
+		}
+		.as-cai-buybox-price ins {
+			text-decoration: none;
+		}
+
+		/* Status-Box innerhalb BuyBox: kein eigener Container */
+		.as-cai-buybox .as-cai-status-box {
+			background: transparent;
+			border: none;
+			border-radius: 0;
+			box-shadow: none;
+			padding: 0;
+			margin: 0;
+			border-left: 3px solid;
+			padding-left: 16px;
+		}
+
+		/* ── BuyBox Countdown — Prominent ── */
+		.as-cai-buybox-countdown {
+			background: rgba(177, 158, 99, 0.08);
+			border: 1px solid rgba(177, 158, 99, 0.2);
+			border-radius: 12px;
+			padding: 24px;
+			text-align: center;
+		}
+
+		.as-cai-buybox-cd-label {
+			font-size: 14px;
+			font-weight: 600;
+			color: rgba(248, 248, 248, 0.6);
+			letter-spacing: 1.5px;
+			margin-bottom: 16px;
+		}
+
+		.as-cai-buybox-cd-timer {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.as-cai-buybox-cd-unit {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			min-width: 60px;
+		}
+
+		.as-cai-buybox-cd-value {
+			font-size: 36px;
+			font-weight: 700;
+			color: #B19E63;
+			line-height: 1;
+			font-variant-numeric: tabular-nums;
+			background: rgba(0, 0, 0, 0.3);
+			border-radius: 8px;
+			padding: 10px 14px;
+			min-width: 56px;
+			display: inline-block;
+			text-align: center;
+		}
+
+		.as-cai-buybox-cd-unit-label {
+			font-size: 11px;
+			font-weight: 600;
+			color: rgba(248, 248, 248, 0.4);
+			letter-spacing: 0.5px;
+			margin-top: 6px;
+		}
+
+		.as-cai-buybox-cd-sep {
+			font-size: 28px;
+			font-weight: 700;
+			color: rgba(177, 158, 99, 0.4);
+			align-self: flex-start;
+			padding-top: 8px;
+		}
+
+		.as-cai-buybox-cd-after {
+			font-size: 13px;
+			color: rgba(248, 248, 248, 0.5);
+			margin-top: 14px;
+		}
+
+		/* ── Mobile Responsive ── */
+		@media (max-width: 768px) {
+			.as-cai-buybox {
+				grid-template-columns: 1fr;
+				padding: 20px;
+				gap: 20px;
+			}
+			.as-cai-buybox-title {
+				font-size: 20px;
+			}
+			.as-cai-buybox-price {
+				font-size: 24px;
+			}
+			.as-cai-buybox-cd-value {
+				font-size: 28px;
+				padding: 8px 10px;
+				min-width: 44px;
+			}
+			.as-cai-buybox-cd-unit {
+				min-width: 44px;
+			}
+		}
+		';
+
+		wp_register_style( 'as-cai-buybox-inline', false );
+		wp_enqueue_style( 'as-cai-buybox-inline' );
+		wp_add_inline_style( 'as-cai-buybox-inline', $css );
 	}
 
 	private static function get_status_config( $status, $label = 'Parzellen' ) {
