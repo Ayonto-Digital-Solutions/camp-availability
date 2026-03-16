@@ -373,11 +373,13 @@ class AS_CAI_Status_Display {
 		// Total = Verfügbar + Verkauft.
 		$total = $available + $sold;
 
+		if ( $total <= 0 && $available <= 0 ) {
+			// Stock Management aktiv, aber Bestand=0 und keine Orders
+			// → Produkt ist ausverkauft (oder noch nicht bestückt).
+			return self::build_status_result( 1, 0, 0, 0, 'Einheiten' );
+		}
+
 		if ( $total <= 0 ) {
-			// Kein Total ermittelbar — nur verfügbare Menge anzeigen.
-			if ( $available <= 0 ) {
-				return null;
-			}
 			$total = $available;
 		}
 
