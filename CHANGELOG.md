@@ -1,9 +1,8 @@
-# Changelog - Camp Availability Integration
+# Changelog
 
-Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
+**Camp Availability Integration** — [ayon.to](https://ayon.to)
 
-Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
-und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
+> Format: [Keep a Changelog](https://keepachangelog.com/de/1.0.0/) | [Semantic Versioning](https://semver.org/lang/de/)
 
 ---
 
@@ -11,60 +10,36 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ### Changed
 - **Admin-Seite komplett umstrukturiert**
-  - Menü logisch neu geordnet: Dashboard → Reservierungen → Reservierung anlegen → Shortcode Builder → Einstellungen → Entwickler → Dokumentation
-  - Alle 7 Seiten als Header-Tabs sichtbar (vorher fehlten "Reservierung anlegen" und "Shortcode Builder")
-  - Neuer "Entwickler"-Tab: Debug, Debug-Tools und Tests zusammengelegt
+  - Menü: Dashboard → Reservierungen → Reservierung anlegen → Shortcode Builder → Einstellungen → Entwickler → Dokumentation
+  - Alle 7 Seiten als Header-Tabs (vorher fehlten 2)
+  - Neuer "Entwickler"-Tab vereint Debug, Debug-Tools und Tests
   - Einstellungen bereinigt: nur noch Countdown, Warenkorb, Updates
 
 ### Added
 - **Dashboard: Verfügbarkeits-Übersicht nach Event**
-  - Neue Sektion "Verfügbarkeit" gruppiert nach Event (= Produktkategorie)
-  - Zeigt je Produkt: Name, Mini-Progressbar, x/y Verfügbarkeit, Status-Badge
-  - Summenzeile pro Event-Gruppe mit Prozent-Badge
-  - Vergangene Events werden automatisch ausgeblendet (Koala End-Date / WC Sale-End-Date)
-  - Status-Labels aus Betreibersicht: "Fast ausgebucht", "Gut gebucht" statt "Kritisch"/"Begrenzt"
+  - Gruppiert nach Event (= Produktkategorie)
+  - Je Produkt: Name, Mini-Progressbar, x/y Verfügbarkeit, Status-Badge
+  - Summenzeile pro Event mit Prozent-Badge
+  - Vergangene Events automatisch ausgeblendet
+  - Status-Labels aus Betreibersicht: "Fast ausgebucht", "Gut gebucht"
 
 ---
 
 ## [1.3.78] - 2026-03-16
 
 ### Added
-- **CTA-Button in Status-Display-Box**
-  - "Jetzt Parzelle auswählen" (Auditorium) / "Jetzt buchen" (Simple) direkt in der Box
-  - Ersetzt den externen Stachethemes "Parzelle auswählen"-Button komplett
-  - Smooth-Scroll zur Seat-Map bei Auditorium-Produkten
-  - WC Add-to-Cart Trigger bei Simple-Produkten
-  - Urgency-Puls-Animation bei kritischem Status
-  - Sold-Out/Reserved-Full: "Auf Warteliste setzen"-Button mit Modal
+- **BuyBox** mit nativer WC Add-to-Cart Integration (ersetzt eigenen CTA-Button)
+- **Kontextabhängige Labels** — Parzelle/Zimmer/Bungalow automatisch erkannt
+- **Stachethemes Gold-Farben** — alle Akzentfarben auf #B19E63
+- **Shortcode `[as_cai_availability]`** — 4 Display-Modi (badge, bar, text, count)
+- **Shortcode Builder** — Admin-Seite mit Live-Vorschau
+- **Reservierung anlegen** — Manuelle Seat-Reservierung mit Grid
+- **Rolle "Camp Manager"** — WooCommerce + Seat Planner Zugriff ohne Admin
+- **Warteliste** — E-Mail-Benachrichtigung bei ausgebuchten Produkten
 
-- **Verfügbarkeits-Shortcode `[as_cai_availability]`**
-  - 4 Display-Modi: `badge` (Standard), `bar`, `text`, `count`
-  - Attribute: `product_id`, `display`
-  - Automatische Produkt-Erkennung im Loop-Kontext (Elementor, WC)
-  - Farbcodierte Status-Badges (verfügbar/begrenzt/kritisch/ausgebucht)
-  - Responsive für Shop-Karten und Loop-Elemente
-
-- **Admin Shortcode Builder**
-  - Neue Unterseite "Shortcode Builder" im Plugin-Menü
-  - Live-Vorschau per AJAX bei jeder Einstellungsänderung
-  - Produkt-Dropdown, Display-Modus-Auswahl
-  - Hintergrund-Toggle (hell/dunkel) für Theme-Test
-  - Copy-to-Clipboard für generierten Shortcode
-
-- **Admin-Reservierungsverwaltung**
-  - Neue Unterseite "Reservierung anlegen" im Plugin-Menü
-  - Seat-Grid mit Farbcodierung (verfügbar/verkauft/reserviert)
-  - Nutzt Stachethemes `add_meta_taken_seat()` / `delete_meta_taken_seat()`
-  - Eigene DB-Tabelle `wp_as_cai_admin_reservations`
-  - Kundendaten (Name, E-Mail) und Freitext-Grund
-  - Aktive Reservierungen mit Freigabe-Button
-  - Reine Plugin-Reservierung ohne WC-Order
-
-- **Neue WordPress-Rolle "Camp Manager"**
-  - Zugriff auf WooCommerce, Stachethemes Seat Planner und Plugin-Admin
-  - Capabilities: `manage_woocommerce` + alle WC Shop-Manager Caps
-  - Zugriff auf `bg-camp-availability` und `as-cai-booking-dashboard`
-  - Auto-Installation bei Plugin-Aktivierung und Version-Upgrade
+### Fixed
+- BuyBox bleibt sichtbar wenn Artikel im Warenkorb
+- Seat-Labels auf Kasse/Warenkorb/Bestellung kontextabhängig
 
 ---
 
