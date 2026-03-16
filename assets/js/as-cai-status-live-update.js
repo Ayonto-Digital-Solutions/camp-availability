@@ -116,11 +116,13 @@
 			$box.removeClass(statusClasses.join(' ')).addClass(newClass);
 			self.showStatusChangeAlert(data.status);
 
+			// Use the label from the server response (e.g. "Parzellen", "Bungalows", "Zimmer").
+			var label = data.label || 'Plätze';
 			var titles = {
 				'available':     'Sofort buchbar',
-				'limited':       'Nur noch wenige Parzellen',
-				'critical':      'Letzte Parzellen!',
-				'reserved_full': 'Alle Parzellen reserviert',
+				'limited':       'Nur noch wenige ' + label,
+				'critical':      'Letzte ' + label + '!',
+				'reserved_full': 'Alle ' + label + ' reserviert',
 				'sold_out':      'Ausgebucht'
 			};
 			var icons = {

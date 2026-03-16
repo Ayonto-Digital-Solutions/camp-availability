@@ -64,10 +64,58 @@ class AS_CAI_Status_Display {
 	}
 
 	/**
-	 * Get the unit label for a product type.
+	 * Detect the accommodation type from the product name.
+	 *
+	 * Checks for keywords like "Parzelle", "Bungalow", "Zimmer" in the
+	 * product title and returns the matching type. Falls back to "Platz".
+	 *
+	 * @param WC_Product $product The product object.
+	 * @return array{ singular: string, plural: string, cta: string }
+	 */
+	private static function get_unit_type( $product ) {
+		$name = strtolower( $product->get_name() );
+
+		$types = array(
+			'parzelle'  => array(
+				'singular' => 'Parzelle',
+				'plural'   => 'Parzellen',
+				'cta'      => 'Jetzt Parzelle auswählen',
+			),
+			'bungalow'  => array(
+				'singular' => 'Bungalow',
+				'plural'   => 'Bungalows',
+				'cta'      => 'Jetzt Bungalow auswählen',
+			),
+			'zimmer'    => array(
+				'singular' => 'Zimmer',
+				'plural'   => 'Zimmer',
+				'cta'      => 'Jetzt Zimmer auswählen',
+			),
+		);
+
+		foreach ( $types as $keyword => $labels ) {
+			if ( false !== strpos( $name, $keyword ) ) {
+				return $labels;
+			}
+		}
+
+		// Fallback for unknown product types.
+		return array(
+			'singular' => 'Platz',
+			'plural'   => 'Plätze',
+			'cta'      => 'Jetzt buchen',
+		);
+	}
+
+	/**
+	 * Get the unit label (plural) for a product.
+	 *
+	 * @param WC_Product $product The product object.
+	 * @return string e.g. "Parzellen", "Bungalows", "Zimmer".
 	 */
 	private static function get_unit_label( $product ) {
-		return 'auditorium' === $product->get_type() ? 'Parzellen' : 'Einheiten';
+		$type = self::get_unit_type( $product );
+		return $type['plural'];
 	}
 
 	// ─────────────────────────────────────────────
@@ -206,14 +254,13 @@ class AS_CAI_Status_Display {
 					</button>
 				<?php else : ?>
 					<?php
-					$product_obj   = wc_get_product( $product_id );
-					$is_auditorium = $product_obj && 'auditorium' === $product_obj->get_type();
-					$cta_text      = $is_auditorium ? 'Jetzt Parzelle auswählen' : 'Jetzt buchen';
-					$cta_class     = in_array( $status, array( 'limited', 'critical' ), true ) ? ' as-cai-cta-urgent' : '';
+					$product_obj = wc_get_product( $product_id );
+					$unit_type   = $product_obj ? self::get_unit_type( $product_obj ) : array( 'cta' => 'Jetzt buchen' );
+					$cta_text    = $unit_type['cta'];
+					$cta_class   = in_array( $status, array( 'limited', 'critical' ), true ) ? ' as-cai-cta-urgent' : '';
 					?>
 					<button class="as-cai-cta-button<?php echo esc_attr( $cta_class ); ?>" type="button"
-							data-product-id="<?php echo esc_attr( $product_id ); ?>"
-							data-product-type="<?php echo esc_attr( $is_auditorium ? 'auditorium' : 'simple' ); ?>">
+							data-product-id="<?php echo esc_attr( $product_id ); ?>">
 						<?php if ( in_array( $status, array( 'limited', 'critical' ), true ) ) : ?>
 							<span class="pulse-dot"></span>
 						<?php endif; ?>
@@ -872,7 +919,8 @@ class AS_CAI_Status_Display {
 		// sind bereits in taken_seats via Filter enthalten).
 		$reserved = self::count_own_reserved_seats( $product->get_id() );
 
-		return self::build_status_result( $total, $available, $sold, $reserved, 'Parzellen' );
+		$label = self::get_unit_label( $product );
+		return self::build_status_result( $total, $available, $sold, $reserved, $label );
 	}
 
 	/**
@@ -892,10 +940,12 @@ class AS_CAI_Status_Display {
 		// Total = Verfügbar + Verkauft.
 		$total = $available + $sold;
 
+		$label = self::get_unit_label( $product );
+
 		if ( $total <= 0 && $available <= 0 ) {
 			// Stock Management aktiv, aber Bestand=0 und keine Orders
 			// → Produkt ist ausverkauft (oder noch nicht bestückt).
-			return self::build_status_result( 1, 0, 0, 0, 'Einheiten' );
+			return self::build_status_result( 1, 0, 0, 0, $label );
 		}
 
 		if ( $total <= 0 ) {
@@ -905,7 +955,7 @@ class AS_CAI_Status_Display {
 		// Reservierte Einheiten aus unserem Reservierungssystem.
 		$reserved = self::count_own_reserved_seats( $product_id );
 
-		return self::build_status_result( $total, $available, $sold, $reserved, 'Einheiten' );
+		return self::build_status_result( $total, $available, $sold, $reserved, $label );
 	}
 
 	/**
