@@ -25,6 +25,9 @@ class AS_CAI_Roles {
 	private function __construct() {
 		// Check if role needs to be installed/updated on admin_init.
 		add_action( 'admin_init', array( $this, 'maybe_install_role' ) );
+
+		// Patch Stachethemes menu caps so Camp Manager can access Seat Planner.
+		add_action( 'admin_menu', array( $this, 'patch_stachethemes_menu_caps' ), 999 );
 	}
 
 	/**
@@ -103,5 +106,34 @@ class AS_CAI_Roles {
 			// Stachethemes Seat Planner + Unser Plugin:
 			// manage_woocommerce deckt beides ab.
 		);
+	}
+
+	/**
+	 * Patch Stachethemes Seat Planner menu capabilities.
+	 *
+	 * Stachethemes hardcodes 'manage_options' for its admin menu,
+	 * but all AJAX handlers use 'manage_woocommerce'. We patch the
+	 * menu globals so Camp Manager (with manage_woocommerce) can
+	 * access the Seat Planner pages.
+	 *
+	 * @since 1.3.79
+	 */
+	public function patch_stachethemes_menu_caps() {
+		global $menu, $submenu;
+
+		// Hauptmenü: Stachethemes Seat Planner.
+		foreach ( $menu as $position => $item ) {
+			if ( isset( $item[2] ) && 'stachesepl' === $item[2] ) {
+				$menu[ $position ][1] = 'manage_woocommerce';
+				break;
+			}
+		}
+
+		// Submenüs.
+		if ( isset( $submenu['stachesepl'] ) ) {
+			foreach ( $submenu['stachesepl'] as $index => $item ) {
+				$submenu['stachesepl'][ $index ][1] = 'manage_woocommerce';
+			}
+		}
 	}
 }
